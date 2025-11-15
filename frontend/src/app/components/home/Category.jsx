@@ -9,7 +9,7 @@ export default function Category() {
   ];
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-6 bg-gray-50">
       <h2 className="text-center text-3xl font-bold mb-8">Shop by Category</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-10">
@@ -21,7 +21,7 @@ export default function Category() {
             <img
               src={cat.image}
               alt={cat.title}
-              className="w-full h-100 object-cover"
+              className="w-full h-80 object-cover"
             />
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-5">
               {cat.label && (

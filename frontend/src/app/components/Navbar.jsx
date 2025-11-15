@@ -3,9 +3,9 @@ import Link from "next/link";
 
 const Navbar = () => {
   return (
-    <nav className="relative shadow-md">
+    <nav className=" shadow-md sticky top-0 z-50">
       {/* Top Black Promotional Bar */}
-      <div className="w-full bg-black text-white text-center py-2 text-4xl md:text-sm font-light tracking-wide">
+      <div className="w-full bg-black text-white text-center py-2 text-sm md:text-sm font-light tracking-wide">
         <span className="inline-block mb-1">
           Sign up and get upto 20% off to your first order &middot;
           <Link
@@ -17,10 +17,8 @@ const Navbar = () => {
         </span>
       </div>
 
-      {/* White Navbar Section */}
-      <div className="w-full bg-white px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between border-t border-gray-100">
-        {/* Left: Logo */}
-        <div className="flex-shrink-0">
+      <div className="w-full bg-white px-4 md:px-8 lg:px-16 py-4 flex items-center  justify-between border-t border-gray-100">
+        <div className="flexX shrink-0">
           <Link
             href="/"
             className="text-xl md:text-2xl font-extrabold tracking-widest text-black"
@@ -58,7 +56,7 @@ const Navbar = () => {
         </div>
 
         {/* Right: Utility Icons */}
-        <div className="flex items-center space-x-4 md:space-x-6 flex-shrink-0">
+        <div className="flex items-center space-x-4 md:space-x-6 shrink-0">
           <img src="/icons/Usericon.svg" alt="User" width="24" height="24" />
           <img src="/icons/searchIcon.svg" alt="Search" width="24" height="24" />
           <img src="/icons/Whishlit.svg" alt="Wishlist" width="24" height="24" />
@@ -70,3 +68,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

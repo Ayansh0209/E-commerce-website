@@ -13,7 +13,9 @@ const Bestseller = ({ data, sectionName }) => {
     1024: { items: 5 },
   }
 
-const items = data.slice(0,15).map((item)=> <ProductCard product={item}/>)
+const items = data.slice(0,15).map((item)=>(<div key={item} className="px-2"><ProductCard product={item}/>
+</div> 
+))
 
 
   const prev=()=>setActiveIndex(activeIndex - 1)
