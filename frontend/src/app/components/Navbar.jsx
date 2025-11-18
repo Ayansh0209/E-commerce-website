@@ -59,8 +59,19 @@ const Navbar = () => {
         <div className="flex items-center space-x-4 md:space-x-6 shrink-0">
           <img src="/icons/Usericon.svg" alt="User" width="24" height="24" />
           <img src="/icons/searchIcon.svg" alt="Search" width="24" height="24" />
-          <img src="/icons/Whishlit.svg" alt="Wishlist" width="24" height="24" />
-          <img src="/icons/CartIcon.svg" alt="Cart" width="24" height="24" />
+          <Link href="/whishlist">
+            <img src="/icons/Whishlit.svg" alt="Wishlist" width="24" height="24"
+             />
+          </Link>
+          <Link href="/cart">
+            <img
+              src="/icons/CartIcon.svg"
+              alt="Cart"
+              width="24"
+              height="24"
+              className="cursor-pointer hover:opacity-80 transition"
+            />
+          </Link>
         </div>
       </div>
     </nav>
