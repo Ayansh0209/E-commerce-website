@@ -167,7 +167,6 @@ export default function ProductInfo({ product }) {
   ))}
 </div>
 
-        
         <button
           onClick={() => setOpenReviews(!openReviews)}
           className="flex justify-between w-full text-left"
