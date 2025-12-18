@@ -1,53 +1,58 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-    firstName:{
-        type:String,
-        required:true,
+    firstName: {
+  type: String,
+  default: ""
+},
+lastName: {
+  type: String,
+  default: ""
+},
+    // password:{
+    //     type:String,
+    //     required:true,
+    // },
+    firebaseUid: {
+        type: String,
+        required: true,
+        unique: true,
     },
-    lastName:{
-        type:String,
-        required:true,
+
+    email: {
+        type: String,
+        required: true,
     },
-    password:{
-        type:String,
-        required:true,
+    role: {
+        type: String,
+        required: true,
+        default: "CUSTOMER"
     },
-    email:{
-        type:String,
-        required:true,
-     
+    mobile: {
+        type: String,
     },
-    role:{
-        type:String,
-        required:true,
-        default:"CUSTOMER"
-    },
-    mobile:{
-        type:String,
-    },
-    address:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"addresses"
+    address: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "addresses"
     }],
-    paymentInfo:[{
-        type:mongoose.Schema.Types.ObjectId,
+    paymentInfo: [{
+        type: mongoose.Schema.Types.ObjectId,
         ref: "payment_info",
     }],
-    ratings:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"ratings",
+    ratings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ratings",
     }],
-    reviews:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"reviews",
+    reviews: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "reviews",
     }],
-    createdAt:{
-        type:Date,
-        default:Date.now()
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 
 })
 
-const User = mongoose.model("users",userSchema)
+const User = mongoose.model("users", userSchema)
 module.exports = User;

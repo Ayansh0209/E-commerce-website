@@ -1,20 +1,20 @@
-const jwt = require("jsonwebtoken")
+// const jwt = require("jsonwebtoken")
 
-const SECRET_KEY = "jnasjuywhebruytyfghfytrujasjlkdiua0z9ujknwejhyiueywqjhweui"
+// const SECRET_KEY = "jnasjuywhebruytyfghfytrujasjlkdiua0z9ujknwejhyiueywqjhweui"
 
-const generateToken = (userId) => {
-    const token = jwt.sign(
-        { userId: userId },
-        SECRET_KEY,
-        { expiresIn: "48h" }
-    );
-    return token;
-}
+// const generateToken = (userId) => {
+//     const token = jwt.sign(
+//         { userId: userId },
+//         SECRET_KEY,
+//         { expiresIn: "48h" }
+//     );
+//     return token;
+// }
 
 
-const getUserIdFromToken = (token) => {
-    const decodedToken = jwt.verify(token, SECRET_KEY)
-    return decodedToken.userId;
-}
+// const getUserIdFromToken = (token) => {
+//     const decodedToken = jwt.verify(token, SECRET_KEY)
+//     return decodedToken.userId;
+// }
 
-module.exports = { generateToken, getUserIdFromToken }
+// module.exports = { generateToken, getUserIdFromToken }

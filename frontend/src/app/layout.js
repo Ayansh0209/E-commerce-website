@@ -1,5 +1,5 @@
-import { Geist, Geist_Mono,Poppins } from "next/font/google";
-
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 
@@ -7,7 +7,7 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-poppins",
-   display: "swap",
+  display: "swap",
 });
 
 const geistSans = Geist({
@@ -31,8 +31,10 @@ export default function RootLayout({ children }) {
       <body
         className={`font-poppins antialiased text-gray-900`}
       >
-        <Navbar />
-        {children}
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

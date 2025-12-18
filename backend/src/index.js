@@ -20,7 +20,7 @@ const ratingRouters = require("./routes/rating.routes.js")
 
 
 
-app.use("/auth",authRouters)
+//app.use("/auth",authRouters)
 app.use("/api/users",userRouters)
 app.use("/api/products",productRouters)
 app.use("/api/admin/products",adminProductRouters)

@@ -1,6 +1,20 @@
 const User = require("../models/user.model")
 const bcrypt = require("bcrypt")
 const jwtProvider = require("../config/jwtProvider")
+
+const findByFirebaseUid = async (uid) => {
+  return await User.findOne({ firebaseUid: uid });
+};
+
+const createUserFromFirebase = async (firebaseUser) => {
+  const user = await User.create({
+    firebaseUid: firebaseUser.uid,
+    email: firebaseUser.email,
+    firstName: firebaseUser.name || "",
+    role: "CUSTOMER",
+  });
+  return user;
+};
 const createUser = async(userData)=>{
     try{
         let{firstName,lastName,email,password}=userData;
@@ -70,4 +84,4 @@ const getAllUsers = async()=>{
     }
 }
 
-module.exports={createUser,findUserById,getUserByEmail,getUserProfileByToken,getAllUsers}
+module.exports={createUser,findUserById,getUserByEmail,getUserProfileByToken,getAllUsers,findByFirebaseUid,createUserFromFirebase}

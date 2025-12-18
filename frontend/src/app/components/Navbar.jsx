@@ -1,82 +1,107 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebase/firebaseClient";
+import AuthModal from "./auth/AuthModal";
 
 const Navbar = () => {
+  const { user, loading } = useAuth();
+  const [openAuth, setOpenAuth] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setOpenMenu(false);
+  };
+
   return (
-    <nav className=" shadow-md sticky top-0 z-50">
-      {/* Top Black Promotional Bar */}
-      <div className="w-full bg-black text-white text-center py-2 text-sm md:text-sm font-light tracking-wide">
-        <span className="inline-block mb-1">
-          Sign up and get upto 20% off to your first order &middot;
-          <Link
-            href="/signup"
-            className="ml-1 font-medium underline hover:text-gray-300"
+    <nav className="shadow-md sticky top-0 z-50 bg-white">
+      {/* Top Bar */}
+      {!user && (
+        <div className="bg-black text-white text-center py-2 text-sm">
+          Sign up and get upto 20% off ·{" "}
+          <button
+            onClick={() => setOpenAuth(true)}
+            className="underline font-medium"
           >
             Sign Up Now
-          </Link>
-        </span>
-      </div>
+          </button>
+        </div>
+      )}
 
-      <div className="w-full bg-white px-4 md:px-8 lg:px-16 py-4 flex items-center  justify-between border-t border-gray-100">
-        <div className="flexX shrink-0">
-          <Link
-            href="/"
-            className="text-xl md:text-2xl font-extrabold tracking-widest text-black"
-          >
-            FALTU FASHION
-          </Link>
+      <div className="px-6 py-4 flex items-center justify-between border-t">
+        {/* Logo */}
+        <Link href="/" className="text-2xl font-extrabold tracking-widest">
+          FALTU FASHION
+        </Link>
+
+        {/* Links */}
+        <div className="hidden md:flex space-x-10">
+          <Link href="/">Home</Link>
+          <Link href="/shop">Shop</Link>
+          <Link href="/about">About Us</Link>
+          <Link href="/contact">Contact</Link>
         </div>
 
-        {/* Center: Navigation Links */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex space-x-10">
-          <Link
-            href="/"
-            className="text-lg font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            Home
-          </Link>
-          <Link
-            href="/shop"
-            className="text-lg font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            Shop
-          </Link>
-          <Link
-            href="/about"
-            className="text-lg font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            About Us
-          </Link>
-          <Link
-            href="/contact"
-            className="text-lg font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            Contact
-          </Link>
-        </div>
+        {/* Right Icons */}
+        <div className="flex items-center space-x-5 relative">
+          {/* Search */}
+          <img src="/icons/searchIcon.svg" width="24" />
 
-        {/* Right: Utility Icons */}
-        <div className="flex items-center space-x-4 md:space-x-6 shrink-0">
-          <img src="/icons/Usericon.svg" alt="User" width="24" height="24" />
-          <img src="/icons/searchIcon.svg" alt="Search" width="24" height="24" />
-          <Link href="/whishlist">
-            <img src="/icons/Whishlit.svg" alt="Wishlist" width="24" height="24"
-             />
+          {/* User */}
+          {!loading && (
+            <>
+              {!user ? (
+                <button onClick={() => setOpenAuth(true)}>
+                  <img src="/icons/Usericon.svg" width="24" />
+                </button>
+              ) : (
+                <div className="relative">
+                  <img
+                    onClick={() => setOpenMenu(!openMenu)}
+                    src={user.photoURL || "/icons/Usericon.svg"}
+                    className="w-8 h-8 rounded-full cursor-pointer object-cover"
+                  />
+
+                  {openMenu && (
+                    <div className="absolute right-0 mt-2 bg-white shadow-lg rounded w-40">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setOpenMenu(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          <Link href="/wishlist">
+            <img src="/icons/Whishlit.svg" width="24" />
           </Link>
+
           <Link href="/cart">
-            <img
-              src="/icons/CartIcon.svg"
-              alt="Cart"
-              width="24"
-              height="24"
-              className="cursor-pointer hover:opacity-80 transition"
-            />
+            <img src="/icons/CartIcon.svg" width="24" />
           </Link>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      {openAuth && <AuthModal onClose={() => setOpenAuth(false)} />}
     </nav>
   );
 };
 
 export default Navbar;
-
