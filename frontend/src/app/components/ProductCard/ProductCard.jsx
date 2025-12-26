@@ -15,13 +15,13 @@ export default function ProductCard({product}) {
       {/* Image container */}
       <div className="relative w-full h-[395px] bg-gray-100">
         <img
-          src={product.image}
+          src={product.imageUrl}
           alt={product.brand}
           className="w-full h-full object-cover "
         />
-        {product.discount && (
+        {product.discountPercent && (
           <span className="absolute top-3 left-3 bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {product.discount}% OFF
+            {product.discountPercent}% OFF
           </span>
         )}
       </div>
@@ -31,14 +31,14 @@ export default function ProductCard({product}) {
         <h3 className="text-base font-medium text-gray-800 truncate">
           {product.brand}
         </h3>
-        <h5 className="text-xs text-gray-600 line-clamp-1">{product.detail}</h5>
+        <h5 className="text-xs text-gray-600 line-clamp-1">{product.title}</h5>
         <div className="flex items-center gap-2 mt-2">
           <span className="text-lg font-semibold text-black">
-            ₹{product.price}
+            ₹{product.discountedPrice}
           </span>
-          {product.originalPrice && (
+          {product.price && (
             <span className="text-sm text-gray-500 line-through">
-              ₹{product.originalPrice}
+              ₹{product.price}
             </span>
           )}
         </div>

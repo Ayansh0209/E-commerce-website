@@ -59,7 +59,33 @@ const productSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
+  fit: {
+  type: String,
+  trim: true,
+  lowercase: true,
+  index: true
+},
+
+print: {
+  type: String,
+  trim: true,
+  lowercase: true,
+  index: true
+},
+
+isBestSeller: {
+  type: Boolean,
+  default: false,
+  index: true
+},
+
+isNewArrival: {
+  type: Boolean,
+  default: false,
+  index: true
+},
+
 });
 
 const Product = mongoose.model('products', productSchema);

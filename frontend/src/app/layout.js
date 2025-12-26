@@ -2,7 +2,8 @@ import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 import Navbar from "./components/Navbar";
-
+import { UserProfileProvider } from "../context/UserProfileContext";
+import ReduxProvider from "@/redux/ReduxProvider";
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -32,8 +33,12 @@ export default function RootLayout({ children }) {
         className={`font-poppins antialiased text-gray-900`}
       >
         <AuthProvider>
-          <Navbar />
-          {children}
+          <UserProfileProvider>
+            <ReduxProvider>
+              <Navbar />
+              {children}
+            </ReduxProvider>
+          </UserProfileProvider>
         </AuthProvider>
       </body>
     </html>

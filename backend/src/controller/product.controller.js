@@ -57,7 +57,7 @@ const getAllProducts = async (req, res) => {
 const createMultipleProducts= async (req, res) => {
     const productId = req.params.id;
     try {
-        const product = await productService.createMultipleProducts(req.query);
+        const product = await productService.createMultipleProducts(req.body);
         return res.status(201).send({message: 'Products created successfully' ,status:true});
     } catch (error) {
         return res.status(500).send({ error: error.message });

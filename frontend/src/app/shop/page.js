@@ -1,16 +1,150 @@
 "use client";
-
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import ProductCard from "../components/ProductCard/ProductCard";
 import mens_shirt from "../data/mens_shirt.json"
-
 import ShopSidebar from "../components/productPage/ShopSiderbar";
 import Footer from "../components/Footer";
+import Category from "../components/home/Category";
+import { fetchProduct } from "@/redux/product/productSlice";
+
+import { useDispatch, useSelector } from "react-redux";
+
 export default function ShopPage() {
- 
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const params = useParams();
+
+const source = searchParams.get("source");
+
+// const shouldShowCategoryFilter =
+//   !source &&                       // NOT from navbar/home
+//   !searchParams.get("isBestSeller") &&
+//   !searchParams.get("isNewArrival");
+
+const shouldShowCategoryFilter = source !== "home";
+
+  const handleFilterChange = (section, value) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    const current = params.get(section)
+      ? params.get(section).split(",").filter(Boolean)
+      : [];
+
+    let updated;
+
+    if (current.includes(value)) {
+      updated = current.filter((v) => v !== value);
+    } else {
+      updated = [...current, value];
+    }
+
+    if (updated.length === 0) {
+      params.delete(section);
+    } else {
+      params.set(section, updated.join(","));
+    }
+
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+  const handleRadioFilter = (section, value) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(section, value);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+
+  const { products, loading, error } = useSelector(
+    (state) => state.product
+  );
+
+  const colorValue = searchParams.get("color");
+  const sizeValue = searchParams.get("size");
+  const priceValue = searchParams.get("price");
+  const sortValue = searchParams.get("sort");
+  const pageNumber = Number(searchParams.get("page") || 1);
+  const stock = searchParams.get("stock");
+  const isBestSeller = searchParams.get("isBestSeller");
+  const isNewArrival = searchParams.get("isNewArrival");
+  const fitValue = searchParams.get("fit");
+  const printValue = searchParams.get("print");
+
+  useEffect(() => {
+    const reqData = {};
+
+    const categoryValue = searchParams.get("category");
+
+    if (categoryValue) {
+      reqData.category = categoryValue;
+    }
+
+    if (isBestSeller) reqData.isBestSeller = true;
+    if (isNewArrival) reqData.isNewArrival = true;
+
+    // colors
+    if (colorValue) {
+      reqData.color = colorValue;
+    }
+
+    // sizes
+    if (sizeValue) {
+      reqData.sizes = sizeValue;
+    }
+    if (fitValue) {
+      reqData.fit = fitValue;
+    }
+
+    // print 
+    if (printValue) {
+      reqData.print = printValue;
+    }
+    // price
+    if (priceValue) {
+      const [minPrice, maxPrice] = priceValue.split("-").map(Number);
+      reqData.minPrice = minPrice;
+      reqData.maxPrice = maxPrice;
+    }
+
+    // sort
+    reqData.sort = sortValue || "price_low";
+
+    // pagination (backend expects 1-based)
+    reqData.pageNumber = pageNumber;
+    reqData.pageSize = 15;
+
+    // stock
+    if (stock) {
+      reqData.stock = stock;
+    }
+
+    dispatch(fetchProduct(reqData));
+  }, [
+    searchParams,
+    colorValue,
+    sizeValue,
+    fitValue,
+    printValue,
+    priceValue,
+    sortValue,
+    pageNumber,
+    stock,
+    isBestSeller,
+    isNewArrival,
+    dispatch,
+  ]);
+
+
+
+  const selectedCategories = searchParams.get("category")?.split(",") || [];
+  const selectedColors = searchParams.get("color")?.split(",") || [];
+  const selectedPrice = searchParams.get("price") || "";
+
   return (
     <div className="w-full min-h-screen bg-white">
-    
+
       <div className="max-w-7xl mx-auto px-4 py-6 text-sm text-gray-600">
         Home &gt; <span className="text-black font-medium">Sweatshirt</span>
       </div>
@@ -32,18 +166,36 @@ export default function ShopPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 flex gap-10">
-       <ShopSidebar/>
+        <ShopSidebar
+          showCategoryFilter={shouldShowCategoryFilter}
+          selectedCategories={selectedCategories}
+          selectedColors={selectedColors}
+          selectedPrice={selectedPrice}
+          selectedSizes={searchParams.get("size")?.split(",") || []}
+          selectedFits={searchParams.get("fit")?.split(",") || []}
+          selectedPrints={searchParams.get("print")?.split(",") || []}
+          onCategoryChange={(value) => handleFilterChange("category", value)}
+          onColorChange={(value) => handleFilterChange("color", value)}
+          onSizeChange={(value) => handleFilterChange("size", value)}
+          onFitChange={(value) => handleFilterChange("fit", value)}
+          onPrintChange={(value) => handleFilterChange("print", value)}
+          onPriceChange={(value) => handleRadioFilter("price", value)}
+        />
 
         {/* -------------------- Product Grid -------------------- */}
         <main className="flex-1">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-6">
-            {mens_shirt.map((p, index) => (
-                <ProductCard key={index} product={p} />
-              ))}
+            {/* {products?.content?.map((p, index) => (
+              <ProductCard key={index} product={p} />
+            ))} */}
+            {products?.content?.map((p, index) => (
+              <ProductCard key={index} product={p} />
+            ))}
+
           </div>
         </main>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
