@@ -43,7 +43,7 @@ async function createProduct(reqData) {
         color: reqData.color,
         description: reqData.description,
         discountedPrice: reqData.discountedPrice,
-        discountPersent: reqData.discountPersent,
+        discountPercent: reqData.discountPercent,
         imageUrl: reqData.imageUrl,
         brand: reqData.brand,
         price: reqData.price,
@@ -122,11 +122,18 @@ async function getAllProducts(reqQuery) {
         query = (await query.where("quantity")).gt(1);
     }
 
+    // if (sort) {
+    //     const sortDirection = sort === "price_hight?-1:1";
+    //     query = query.sort({ discountedPrice: sortDirection });
+    // }
     if (sort) {
-        const sortDirection = sort === "price_hight?-1:1";
-        query = query.sort({ discountedPrice: sortDirection });
-    }
-    const totalProducts = await Product.countDocuments(query);
+    const sortDirection = sort === "price_high" ? -1 : 1;
+    query = query.sort({ discountedPrice: sortDirection });
+}
+
+    //const totalProducts = await Product.countDocuments(query);
+    const totalProducts = await query.clone().countDocuments();
+
     const skip = (pageNumber - 1) * pageSize;
 
     query = query.skip(skip).limit(pageSize);
