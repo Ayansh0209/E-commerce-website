@@ -5,6 +5,8 @@ const getAuthHeader = async () => {
   if (!user) throw new Error("Not authenticated");
 
   const token = await user.getIdToken();
+
+
   return {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -32,7 +34,7 @@ export const addItemToCartAPI = async (data) => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart/add`,
     {
-      method: "POST",
+      method: "PUT",
       headers,
       body: JSON.stringify(data),
     }

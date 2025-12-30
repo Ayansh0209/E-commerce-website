@@ -1,4 +1,5 @@
 const userService = require("../services/user.service.js")
+const Cart = require("../models/cart.model.js")
 const CartItem = require("../models/cartItem.model.js");
 async function updateCartItem(userId, cartItemId, CartItemData) {
     try {
@@ -15,8 +16,21 @@ async function updateCartItem(userId, cartItemId, CartItemData) {
             item.quantity = CartItemData.quantity,
                 item.price = item.quantity * item.product.price;
             item.discountedPrice = item.quantity * item.product.discountedPrice;
-            const updatedCartItem = await item.save();
-            return updatedCartItem;
+            await item.save();
+            const cart = await Cart.findOne({ user: userId })
+                .populate({
+                    path: "cartItems",
+                    populate: {
+                        path: "product",
+                        select: "title imageUrl price discountedPrice brand"
+                    }
+                });
+
+            return cart;
+
+
+
+            return cart
         } else {
             throw new Error("you cant update this cart item ")
         }

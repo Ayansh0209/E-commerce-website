@@ -29,6 +29,7 @@ const productSlice = createSlice({
     products: [],
     currentProduct: null,
     loading: false,
+    detailLoading: false,
     error: null,
   },
   reducers: {
@@ -71,3 +72,4 @@ const productSlice = createSlice({
 
 export const { clearProduct } = productSlice.actions;
 export default productSlice.reducer;
+  

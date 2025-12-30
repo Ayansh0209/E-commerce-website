@@ -7,7 +7,7 @@ export const fetchProducts = async (params) => {
     throw new Error("Failed to fetch products");
   }
    const data = await res.json();
-  console.log("PRODUCT DATA FROM API 👉", data);
+  console.log("PRODUCT DATA FROM API ", data);
 return data;
   //return res.json();
 };

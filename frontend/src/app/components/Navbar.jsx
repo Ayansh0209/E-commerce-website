@@ -7,11 +7,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import AuthModal from "./auth/AuthModal";
 import { useUserProfile } from "@/context/UserProfileContext";
-
-
+import { useDispatch } from "react-redux";
+import { clearCart } from "@/redux/cart/cartSlice";
 const Navbar = () => {
   const { user, loading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const dispatch = useDispatch();
 
   const [openAuth, setOpenAuth] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -19,6 +20,8 @@ const Navbar = () => {
   const handleLogout = async () => {
     await signOut(auth);
     setOpenMenu(false);
+    dispatch(clearCart());
+
   };
 
   return (

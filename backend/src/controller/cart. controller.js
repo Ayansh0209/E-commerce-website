@@ -13,6 +13,7 @@ const findUserCart = async (req, res) => {
 
 const addItemToCart = async (req, res) => {
     const user = req.user;
+    console.log("userid",user)
     try {
         const cartItem = await cartService.addCartItem(user.id,req.body);
         return res.status(200).send(cartItem);

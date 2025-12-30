@@ -4,53 +4,80 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const steps = [
-  { key: "bag", label: "Bag", href: "/cart" },
-  { key: "address", label: "Address", href: "/cart/address" },
-  { key: "payment", label: "Payment", href: "/cart/payment" },
+  { key: "bag", label: "BAG", href: "/cart" },
+  { key: "address", label: "ADDRESS", href: "/cart/address" },
+  { key: "payment", label: "PAYMENT", href: "/cart/payment" },
 ];
 
 export default function CartLayout({ children }) {
   const pathname = usePathname();
 
-  // FIX: exact match instead of startsWith
-  const currentStepIndex = steps.findIndex(step =>
-    pathname === step.href
-  );
+  const currentStepIndex = steps.findIndex(step => pathname === step.href);
 
   return (
-    <div className="px-6 lg:px-16 py-6">
-
-      {/* Stepper (centered) */}
-      <div className="flex items-center justify-center gap-10 mb-10">
-        {steps.map((s, i) => {
-          const isActive = i === currentStepIndex;
-          const isDone = i < currentStepIndex;
-
-          return (
-            <Link key={s.key} href={s.href} className="flex items-center gap-3">
-
-              <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold
-                  ${isActive ? "bg-black text-white" :
-                    isDone ? "bg-green-600 text-white" :
-                    "bg-gray-300 text-black"}`}
-              >
-                {i + 1}
-              </div>
-
-              <span
-                className={`text-base font-semibold
-                  ${isActive ? "text-black" : "text-gray-600"}`}
-              >
-                {s.label}
-              </span>
-
-            </Link>
-          );
-        })}
+    <div className="min-h-screen bg-white">
+      
+      {/* Stepper Navigation */}
+      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-center gap-8 md:gap-16">
+            {steps.map((step, index) => {
+              const isActive = index === currentStepIndex;
+              const isCompleted = index < currentStepIndex;
+              
+              return (
+                <div key={step.key} className="flex items-center">
+                  <Link 
+                    href={step.href}
+                    className="flex items-center gap-3 group"
+                  >
+                    {/* Circle Number */}
+                    <div
+                      className={`
+                        w-10 h-10 rounded-full flex items-center justify-center
+                        text-sm font-bold transition-all
+                        ${isActive 
+                          ? 'bg-black text-white' 
+                          : isCompleted 
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-200 text-gray-500'
+                        }
+                        ${!isActive && 'group-hover:scale-105'}
+                      `}
+                    >
+                      {isCompleted ? '✓' : index + 1}
+                    </div>
+                    
+                    {/* Label */}
+                    <span
+                      className={`
+                        text-sm font-semibold tracking-wide
+                        ${isActive 
+                          ? 'text-black' 
+                          : 'text-gray-500'
+                        }
+                        ${!isActive && 'group-hover:text-gray-700'}
+                      `}
+                    >
+                      {step.label}
+                    </span>
+                  </Link>
+                  
+                  {/* Connector Line */}
+                  {index < steps.length - 1 && (
+                    <div className="hidden md:block w-16 lg:w-24 h-[2px] bg-gray-200 mx-4" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {children}
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {children}
+      </div>
     </div>
   );
 }

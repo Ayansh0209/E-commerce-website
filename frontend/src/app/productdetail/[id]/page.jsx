@@ -1,14 +1,17 @@
 "use client";
 
-import ProductGallery from "../components/productPage/ProductGallery";
-import ProductInfo from "../components/productPage/ProductInfo";
-import ProductCard from "../components/ProductCard/ProductCard";
-import Footer from "../components/Footer";
-
+import ProductGallery from "../../components/productPage/ProductGallery";
+import ProductInfo from "../../components/productPage/ProductInfo";
+import ProductCard from "../../components/ProductCard/ProductCard";
+import Footer from "../../components/Footer";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "next/navigation";
+import { fetchProductId, clearProduct } from "../../../redux/product/productSlice";
+import { useEffect } from "react";
 // ----------------------------------
 // DYNAMIC PRODUCT DATA (dummy now)
 // ----------------------------------
-const product = {
+const products = {
   id: 1,
   brand: "Faltu Fashion",
   name: "Men Slim Fit Solid Shirt",
@@ -21,13 +24,13 @@ const product = {
   // ⭐ REQUIRED FIELD
   rating: 4.3,
 
-ratingBreakdown: [
-  { star: 5, percent: 60 },
-  { star: 4, percent: 25 },
-  { star: 3, percent: 10 },
-  { star: 2, percent: 3 },
-  { star: 1, percent: 2 },
-],
+  ratingBreakdown: [
+    { star: 5, percent: 60 },
+    { star: 4, percent: 25 },
+    { star: 3, percent: 10 },
+    { star: 2, percent: 3 },
+    { star: 1, percent: 2 },
+  ],
 
 
   // ⭐ REQUIRED FIELD
@@ -157,40 +160,79 @@ ratingBreakdown: [
 
 
 export default function ProductPage() {
+  const { id } = useParams()
+  const dispatch = useDispatch();
+  const { currentProduct, detailLoading } = useSelector(state => state.product);
+
+  useEffect(() => {
+    if (id) dispatch(fetchProductId(id));
+
+    return () => {
+      dispatch(clearProduct());
+    };
+  }, [id,dispatch]);
+
+  if (detailLoading || !currentProduct) {
+    return <div className="text-center py-20">Loading...</div>;
+  }
+
+  const product = {
+  ...currentProduct,
+
+  
+  images: currentProduct.imageUrl ? [currentProduct.imageUrl] : [],
+
+  // IMPORTANT: normalize sizes safely
+  // Handles: null, undefined, empty array
+  sizes: Array.isArray(currentProduct.sizes)
+    ? currentProduct.sizes
+    : [],
+
+  reviews: currentProduct.reviews ?? [],
+
+  // UI-only fallback (keep for now)
+  rating: currentProduct.rating ?? 4.2,
+
+  // Description used in Product Details accordion
+  details: currentProduct.description ?? "No description available",
+};
+
+
+
+
   return (
     <div>
-    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
 
-      {/* ---------------- MAIN SECTION ---------------- */}
-    <div className="flex flex-col lg:flex-row gap-20">
-  <div className="lg:sticky lg:top-24 h-fit">
-    <ProductGallery images={product.images} />
-  </div>
+        {/* ---------------- MAIN SECTION ---------------- */}
+        <div className="flex flex-col lg:flex-row gap-20">
+          <div className="lg:sticky lg:top-24 h-fit">
+            <ProductGallery images={product.images} />
+          </div>
+          <ProductInfo product={product} />
+        </div>
 
-  <ProductInfo product={product} />
-</div>
+
+        {/* ---------------- Frequently Bought Together ---------------- */}
+        <h2 className="text-2xl font-bold mt-16 mb-4">Frequently Bought Together</h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          {products.fbt.map((item, i) => (
+            <ProductCard key={i} product={item} />
+          ))}
+        </div>
 
 
-      {/* ---------------- Frequently Bought Together ---------------- */}
-      <h2 className="text-2xl font-bold mt-16 mb-4">Frequently Bought Together</h2>
+        {/* ---------------- Similar Products ---------------- */}
+        <h2 className="text-2xl font-bold mt-16 mb-4">Similar Products</h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        {product.fbt.map((item, i) => (
-          <ProductCard key={i} product={item} />
-        ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          {products.similar.map((item, i) => (
+            <ProductCard key={i} product={item} />
+          ))}
+        </div>
       </div>
-
-
-      {/* ---------------- Similar Products ---------------- */}
-      <h2 className="text-2xl font-bold mt-16 mb-4">Similar Products</h2>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        {product.similar.map((item, i) => (
-          <ProductCard key={i} product={item} />
-        ))}
-      </div>
-    </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

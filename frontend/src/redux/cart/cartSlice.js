@@ -24,7 +24,7 @@ export const removeCartItem = createAsyncThunk(
 export const updateCartItem = createAsyncThunk(
     "cart/updateItem",
     async ({ cartItemId, data }) =>
-    await updateCartItemAPI({ cartItemId, data })
+    await updateCartItemAPI(cartItemId, data )
 
 )
 
@@ -35,7 +35,11 @@ const cartSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearCart:(state)=>{
+      state.cart = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.pending, (state) => {
@@ -61,4 +65,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { clearCart } = cartSlice.actions;
 export default cartSlice.reducer;
