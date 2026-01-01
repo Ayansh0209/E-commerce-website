@@ -1,52 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import OrderSummary from './OrderSummary';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import OrderHistory from '@/app/orderhistory/page';
+import { useDispatch, useSelector } from "react-redux";
+import { createOrder } from '@/redux/order/orderSlice';
+import { getOrderByIdAPI } from '@/redux/order/orderApi';
+import { useAuth } from "../../../context/AuthContext";
+import { createPayment } from "@/redux/payment/paymentSlice";
+import {
+  fetchUserAddresses,
+  addAddress,
+  deleteAddress
+} from "@/redux/address/addressSlice";
+
+
+
 export default function AddressPage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(1);
-
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: 'Ayansh Singh',
-      isHome: true,
-      street: 'JAYPEE INSTITUTE OF INFORMATION TECHNOLOGY, Pinnacle Tower 2',
-      area: 'Pinnacle Tower-2, a 13 a, A13 A, Industrial Area, Sector 62',
-      city: 'Noida',
-      state: 'Uttar Pradesh',
-      pincode: '201309',
-      mobile: '7294947567',
-      isDefault: true
-    },
-    {
-      id: 2,
-      name: 'Aayans',
-      isHome: true,
-      street: 'bd complex, suzuki showroom',
-      area: 'Hazaribagh H.O',
-      city: 'Hazaribagh',
-      state: 'Jharkhand',
-      pincode: '825301',
-      mobile: '6205784593',
-      isDefault: false
-    },
-    {
-      id: 3,
-      name: 'Ayansh Singh',
-      isHome: true,
-      street: 'Nishant Suzuki showroom, barkagaon road',
-      area: 'Hazaribagh H.O',
-      city: 'Hazaribagh',
-      state: 'Jharkhand',
-      pincode: '825301',
-      mobile: '8986189869',
-      isDefault: false
-    }
-  ]);
-
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const { addresses, loading } = useSelector(state => state.address);
+  const { user, loading:authLoad } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -57,6 +33,18 @@ export default function AddressPage() {
     phoneNumber: ''
   });
 
+  useEffect(() => {
+     if (!authLoad && user) {
+    dispatch(fetchUserAddresses());
+  }
+  }, [dispatch,user,authLoad]);
+
+  // useEffect(() => {
+  //   if (addresses.length && !selectedAddress) {
+  //     setSelectedAddress(addresses[0]._id);
+  //   }
+  // }, [addresses, selectedAddress]);
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -64,41 +52,81 @@ export default function AddressPage() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newAddress = {
-      id: addresses.length + 1,
-      name: `${formData.firstName} ${formData.lastName}`,
-      isHome: true,
-      street: formData.address,
-      area: '',
+
+    const addressPayload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      streetAddress: formData.address,
       city: formData.city,
       state: formData.state,
-      pincode: formData.zip,
-      mobile: formData.phoneNumber,
-      isDefault: false
+      zipCode: formData.zip,
+      mobile: formData.phoneNumber
     };
 
-    setAddresses([...addresses, newAddress]);
-    setShowModal(false);
+    try {
 
-    // Reset form
-    setFormData({
-      firstName: '',
-      lastName: '',
-      address: '',
-      city: '',
-      state: '',
-      zip: '',
-      phoneNumber: ''
-    });
+      await dispatch(addAddress(addressPayload)).unwrap();
+      setShowModal(false);
+
+
+
+      setFormData({
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        state: '',
+        zip: '',
+        phoneNumber: ''
+      });
+
+    } catch (err) {
+      console.error("Failed to save address", err);
+    }
   };
+
+
+
+const handleContinuePayment = async () => {
+  if (!selectedAddress) {
+    alert("Please select an address");
+    return;
+  }
+
+  console.log("▶️ Selected Address ID:", selectedAddress);
+
+  try {
+    console.log("🟡 Creating order...");
+    const order = await dispatch(createOrder(selectedAddress)).unwrap();
+    console.log("✅ Order created:", order);
+
+    console.log("🟡 Creating payment for order:", order._id);
+    const payment = await dispatch(createPayment(order._id)).unwrap();
+    console.log("✅ Payment response:", payment);
+
+    if (payment.payment_link_url) {
+      console.log("🚀 Redirecting to Razorpay:", payment.payment_link_url);
+      window.location.href = payment.payment_link_url;
+    } else {
+      console.error("❌ No payment_link_url received");
+      alert("Payment link not generated");
+    }
+
+  } catch (err) {
+    console.error("❌ Checkout failed:", err);
+    alert("Something went wrong. Please try again.");
+  }
+};
+
+  const defaultAddress = addresses.length ? addresses[0] : null;
+  const otherAddresses = addresses.length > 1 ? addresses.slice(1) : [];
 
   const removeAddress = (id) => {
-    setAddresses(addresses.filter(addr => addr.id !== id));
+    dispatch(deleteAddress(id));
   };
-
   const totalMRP = 2297.00;
   const discount = 1601;
   const convenienceFee = 50;
@@ -106,165 +134,218 @@ export default function AddressPage() {
 
   return (
     <>
-      <div className="grid lg:grid-cols-3 gap-8">
+    <div className="grid lg:grid-cols-3 gap-8">
 
-        {/* Left: Address Selection */}
-        <div className="lg:col-span-2">
-          <div className="bg-white border border-gray-200 rounded-lg">
+  {/* LEFT COLUMN — ADDRESS */}
+  <div className="lg:col-span-2">
+    <div className="bg-white border border-gray-200 rounded-lg">
 
-            {/* Header */}
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-800">Select Delivery Address</h2>
-              <button
-                onClick={() => setShowModal(true)}
-                className="px-4 py-2 border-2 border-black text-black font-semibold rounded hover:bg-black hover:text-white transition-colors"
-              >
-                ADD NEW ADDRESS
-              </button>
-            </div>
+      {/* Header */}
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-800">
+          Select Delivery Address
+        </h2>
+        <button
+          onClick={() => setShowModal(true)}
+          className="px-4 py-2 border-2 border-black text-black font-semibold rounded hover:bg-black hover:text-white transition-colors"
+        >
+          ADD NEW ADDRESS
+        </button>
+      </div>
 
-            {/* Default Address Section */}
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
-                Default Address
-              </h3>
+      {/* DEFAULT ADDRESS */}
+      {defaultAddress && (
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
+            Default Address
+          </h3>
 
-              {addresses.filter(addr => addr.isDefault).map(address => (
-                <div key={address.id} className="border-2 border-gray-300 rounded-lg p-5 bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <input
-                        type="radio"
-                        name="address"
-                        checked={selectedAddress === address.id}
-                        onChange={() => setSelectedAddress(address.id)}
-                        className="mt-1 w-5 h-5 accent-black"
-                      />
+          <div className="border-2 border-black rounded-lg p-5 bg-gray-50">
+            <div className="flex items-start gap-4">
+              <input
+                type="radio"
+                name="address"
+                checked={selectedAddress === defaultAddress._id}
+                onChange={() => setSelectedAddress(defaultAddress._id)}
+                className="mt-1 w-5 h-5 accent-black"
+              />
 
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-bold text-gray-900">{address.name}</span>
-                          {address.isHome && (
-                            <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded">
-                              HOME
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-gray-700 text-sm mb-1">{address.street}</p>
-                        {address.area && <p className="text-gray-700 text-sm mb-1">{address.area}</p>}
-                        <p className="text-gray-700 text-sm mb-3">
-                          {address.city}, {address.state} - {address.pincode}
-                        </p>
-
-                        <p className="text-gray-700 text-sm mb-3">
-                          Mobile: <strong>{address.mobile}</strong>
-                        </p>
-
-                        <p className="text-sm text-gray-600">• Cash on Delivery available</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 mt-4 ml-9">
-                    <button className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded hover:border-gray-400 transition-colors">
-                      REMOVE
-                    </button>
-                    <button className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded hover:border-gray-400 transition-colors">
-                      EDIT
-                    </button>
-                  </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-bold text-gray-900">
+                    {defaultAddress.firstName} {defaultAddress.lastName}
+                  </span>
+                  <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded">
+                    HOME
+                  </span>
                 </div>
-              ))}
-            </div>
 
-            {/* Other Addresses Section */}
-            <div className="p-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
-                Other Address
-              </h3>
+                <p className="text-gray-700 text-sm mb-1">
+                  {defaultAddress.streetAddress}
+                </p>
+                <p className="text-gray-700 text-sm mb-3">
+                  {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.zipCode}
+                </p>
 
-              <div className="space-y-4">
-                {addresses.filter(addr => !addr.isDefault).map(address => (
-                  <div key={address.id} className="border-2 border-gray-300 rounded-lg p-5 hover:border-gray-400 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <input
-                          type="radio"
-                          name="address"
-                          checked={selectedAddress === address.id}
-                          onChange={() => setSelectedAddress(address.id)}
-                          className="mt-1 w-5 h-5 accent-black"
-                        />
+                <p className="text-gray-700 text-sm mb-3">
+                  Mobile: <strong>{defaultAddress.mobile}</strong>
+                </p>
 
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-bold text-gray-900">{address.name}</span>
-                            {address.isHome && (
-                              <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded">
-                                HOME
-                              </span>
-                            )}
-                          </div>
-
-                          <p className="text-gray-700 text-sm mb-1">{address.street}</p>
-                          {address.area && <p className="text-gray-700 text-sm mb-1">{address.area}</p>}
-                          <p className="text-gray-700 text-sm mb-3">
-                            {address.city}, {address.state} - {address.pincode}
-                          </p>
-
-                          <p className="text-gray-700 text-sm">
-                            Mobile: <strong>{address.mobile}</strong>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 mt-4 ml-9">
-                      <button
-                        onClick={() => removeAddress(address.id)}
-                        className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded hover:border-gray-400 transition-colors"
-                      >
-                        REMOVE
-                      </button>
-                      <button className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded hover:border-gray-400 transition-colors">
-                        EDIT
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <p className="text-sm text-gray-600">
+                  • Cash on Delivery available
+                </p>
               </div>
             </div>
 
-            {/* Continue Button */}
-            <div className="p-6 border-t border-gray-200">
+            <div className="flex gap-3 mt-4 ml-9">
               <button
-                onClick={() => router.push('/cart/payment')}
-                className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
+                onClick={() => removeAddress(defaultAddress._id)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
               >
-                Continue Payment
+                REMOVE
+              </button>
+              <button
+                onClick={() => handleEditAddress(defaultAddress)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+              >
+                EDIT
               </button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Right: Order Summary */}
-        <div className="lg:col-span-1">
-          <OrderSummary
-            totalMRP={totalMRP}
-            discount={totalDiscount}
-            convenienceFee={convenienceFee}
-            totalAmount={totalAmount}
-            showPlaceOrder
-            onPlaceOrder={() => {
-              if (!user) {
-                setShowAuth(true); // auth modal later
-                return;
-              }
-              router.push("/cart/address");
-            }}
-          />
+      {/* OTHER ADDRESSES */}
+      {otherAddresses.length > 0 && (
+        <div className="p-6">
+          <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
+            Other Address
+          </h3>
+
+          <div className="space-y-4">
+            {otherAddresses.map(address => (
+              <div
+                key={address._id}
+                className="border-2 border-gray-300 rounded-lg p-5 hover:border-gray-400 transition-colors"
+              >
+                <div className="flex items-start gap-4">
+                  <input
+                    type="radio"
+                    name="address"
+                    checked={selectedAddress === address._id}
+                    onChange={() => setSelectedAddress(address._id)}
+                    className="mt-1 w-5 h-5 accent-black"
+                  />
+
+                  <div className="flex-1">
+                    <p className="font-bold text-gray-900 mb-2">
+                      {address.firstName} {address.lastName}
+                    </p>
+
+                    <p className="text-gray-700 text-sm mb-1">
+                      {address.streetAddress}
+                    </p>
+                    <p className="text-gray-700 text-sm mb-3">
+                      {address.city}, {address.state} - {address.zipCode}
+                    </p>
+
+                    <p className="text-gray-700 text-sm">
+                      Mobile: <strong>{address.mobile}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-4 ml-9">
+                  <button
+                    onClick={() => removeAddress(address._id)}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                  >
+                    REMOVE
+                  </button>
+                  <button
+                    onClick={() => handleEditAddress(address)}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                  >
+                    EDIT
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      )}
+
+    </div>
+  </div>
+
+  {/* RIGHT COLUMN — ORDER SUMMARY */}
+  <div className="lg:col-span-1">
+    <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-28">
+      <h2 className="text-lg font-bold mb-6 text-gray-800 uppercase">
+        Order Summary
+      </h2>
+
+      <div className="space-y-3 mb-4">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Total MRP</span>
+          <span className="font-semibold">₹{totalMRP.toFixed(2)}</span>
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Discount on MRP</span>
+          <span className="text-green-600 font-semibold">-₹{discount}</span>
+        </div>
+
+        <div className="flex justify-between text-sm items-center">
+          <span className="text-gray-600">Coupon Discount</span>
+          <button className="text-pink-600 text-xs font-semibold hover:underline">
+            Apply Coupon
+          </button>
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Convenience Fee</span>
+          <span className="font-semibold">+₹{convenienceFee}</span>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex justify-between text-base font-bold">
+          <span>Total Amount</span>
+          <span>₹{totalAmount.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-6">
+      <button
+        onClick={handleContinuePayment}
+        className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
+      >
+        Continue Payment
+      </button>
+    </div>
+  </div>
+
+
+
+        {/* <div className="lg:col-span-1">
+                           <OrderSummary
+                               totalMRP={totalMRP}
+                               discount={totalDiscount}
+                               convenienceFee={convenienceFee}
+                               totalAmount={totalAmount}
+                               showPlaceOrder
+                               onPlaceOrder={() => {
+                                   if (!user) {
+                                       setShowAuth(true); // auth modal later
+                                       return;
+                                   }
+                                   router.push("/cart/address");
+                               }}
+                           />
+                       </div> */}
+
 
 
       </div>

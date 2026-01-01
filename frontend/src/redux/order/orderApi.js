@@ -13,22 +13,21 @@ const getAuthHeader = async () => {
 };
 
 // CREATE ORDER
-export const createOrderAPI = async (addressData) => {
+export const createOrderAPI = async (addressId) => {
   const headers = await getAuthHeader();
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/orders`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/orders/`,
     {
       method: "POST",
       headers,
-      body: JSON.stringify(addressData),
+      body: JSON.stringify({addressId:addressId}),
     }
   );
 
   if (!res.ok) {
     throw new Error("Failed to create order");
   }
-
   return res.json();
 };
 

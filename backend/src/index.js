@@ -17,8 +17,8 @@ const adminOrderRouters = require("./routes/adminOrder.routes.js")
 const orderRouters = require("./routes/order.routes.js")
 const reviewRouters = require("./routes/review.routes.js")
 const ratingRouters = require("./routes/rating.routes.js")      
-
-
+const paymentRouter = require("./routes/payment.routes.js")
+const addressRoutes = require("./routes/address.routes.js");
 
 //app.use("/auth",authRouters)
 app.use("/api/users",userRouters)
@@ -30,6 +30,8 @@ app.use("/api/admin/orders",adminOrderRouters)
 app.use("/api/orders",orderRouters)
 app.use("/api/reviews",reviewRouters)
 app.use("/api/ratings",ratingRouters)
+app.use("/api/payments",paymentRouter)
+app.use("/api/addresses", addressRoutes);
 
 
 

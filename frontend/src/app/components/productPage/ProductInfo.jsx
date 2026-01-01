@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addItemToCart } from "../../../redux/cart/cartSlice";
-
+import { useRouter } from 'next/navigation';
 export default function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
   const [openDetails, setOpenDetails] = useState(false);
   const [openSpecs, setOpenSpecs] = useState(false);
   const [openReviews, setOpenReviews] = useState(false);
   const [addedSize, setAddedSize] = useState(null);
-
+const router = useRouter();
   const dispatch = useDispatch();
 
   const handleAddToCart = async () => {
@@ -137,7 +137,7 @@ export default function ProductInfo({ product }) {
       <button
         onClick={
            selectedSize && addedSize === selectedSize
-            ? () => router.push("/cartpage")
+            ? () => router.push("/cart")
             : handleAddToCart
         }
         className="mt-6 w-full bg-black text-white py-3 rounded-full"

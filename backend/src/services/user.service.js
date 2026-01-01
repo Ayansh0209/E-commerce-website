@@ -1,6 +1,6 @@
 const User = require("../models/user.model")
 const bcrypt = require("bcrypt")
-const jwtProvider = require("../config/jwtProvider")
+
 
 const findByFirebaseUid = async (uid) => {
   return await User.findOne({ firebaseUid: uid });

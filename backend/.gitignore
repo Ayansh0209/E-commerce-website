@@ -1,2 +1,3 @@
 node_modules
 faltu-fashion-secret.json
+.env.local

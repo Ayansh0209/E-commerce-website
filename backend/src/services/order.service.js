@@ -2,21 +2,32 @@ const cartService = require("../services/cart.service.js");
 const Address = require("../models/address.model.js");
 const Order = require("../models/order.model.js");
 const OrderItems = require("../models/orderitems.js");
-async function createOrder(user, shippAddress) {
-    let address;
-    if (shippAddress._id) {
-        let existAddress = await Address.findById(shippAddress._id);
-        address = existAddress;
-    }
-    else {
-        address = new Address(shippAddress);
-        address.user = user;
-        await address.save();
+async function createOrder(user, addressId) {
+    // let address;
+    // if (shippAddress._id) {
+    //     let existAddress = await Address.findById(shippAddress._id);
+    //     address = existAddress;
+    // }
+    // else {
+    //     address = new Address(shippAddress);
+    //     address.user = user;
+    //     await address.save();
 
-        user.address.push(address._id);
+    //     user.address.push(address._id);
 
-        await user.save();
+    //     await user.save();
+    // }
+
+    const address = await Address.findOne({
+        _id: addressId,
+        user: user._id
+    });
+
+
+    if (!address) {
+        throw new Error("Shipping address not found");
     }
+
 
     const cart = await cartService.findUserCart(user._id);
     const orderItems = [];
@@ -35,17 +46,18 @@ async function createOrder(user, shippAddress) {
     }
     const createdOrder = new Order({
 
-        //user,
         user: user._id,
-
         orderItems,
         totalPrice: cart.totalPrice,
         // totalDiscountedPrice: cart.totalDiscountedPrice,
         totalDiscountedPrice: cart.totalPrice - cart.discounts,
-
         discount: cart.discounts,
         totalItem: cart.totalItem,
-        shippingAddress: address._id
+        shippingAddress: address._id,
+        orderStatus: "PENDING",
+        paymentDetails: {
+            paymentStatus: "PENDING"
+        }
     })
     const savedOrder = await createdOrder.save();
     return savedOrder;
@@ -107,14 +119,14 @@ async function userOrderHistory(userId) {
     }
 }
 
-async  function getAllOrders(){
-     return await Order.find().populate({path: "orderItems", populate: { path: "product"}}).lean()
-    
+async function getAllOrders() {
+    return await Order.find().populate({ path: "orderItems", populate: { path: "product" } }).lean()
+
 }
 
-async function deleteOrder(orderId){
+async function deleteOrder(orderId) {
     const order = await findOrderById(orderId);
     await Order.findByIdAndDelete(order._id);
 }
 
-module.exports = { createOrder, placeOrder, confirmedOrder, shipOrder, deliverOrder, cancelOrder, findOrderById, userOrderHistory,getAllOrders,deleteOrder }
+module.exports = { createOrder, placeOrder, confirmedOrder, shipOrder, deliverOrder, cancelOrder, findOrderById, userOrderHistory, getAllOrders, deleteOrder }
