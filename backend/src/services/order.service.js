@@ -44,6 +44,12 @@ async function createOrder(user, addressId) {
         const createdOrderItem = await orderItem.save();
         orderItems.push(createdOrderItem);
     }
+
+    if (!user.mobile && address.mobile) {
+        user.mobile = address.mobile;
+        await user.save();
+    }
+
     const createdOrder = new Order({
 
         user: user._id,

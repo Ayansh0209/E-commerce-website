@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { UserProfileProvider } from "../context/UserProfileContext";
 import ReduxProvider from "@/redux/ReduxProvider";
+import Script from "next/script";
 import Footer from "./components/Footer";
 const poppins = Poppins({
   subsets: ["latin"],
@@ -30,6 +31,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable}`}>
+       <head>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body
         className={`font-poppins antialiased text-gray-900`}
       >

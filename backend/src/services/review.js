@@ -12,16 +12,21 @@ async function createReview(reqData, user) {
         createdAt: new Date(),
     })
 
-    await product.save();
+    //await product.save();
     return await review.save();
 }
 
+// async function getAllReview(productId) {
+
+//     const product = await productService.findProductById(reqData.productId);
+
+//     return await Review.find({ product: productId }).populate("user");
+// }
 async function getAllReview(productId) {
-
-    const product = await productService.findProductById(reqData.productId);
-
-    return await Review.find({ product: productId }).populate("user");
+  return await Review.find({ product: productId })
+    .populate("user", "firstName lastName");
 }
+
 
 module.exports = {
     createReview,getAllReview

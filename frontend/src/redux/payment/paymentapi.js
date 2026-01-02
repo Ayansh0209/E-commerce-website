@@ -19,7 +19,7 @@ export const createPaymentAPI = async (orderId) => {
   const headers = await getAuthHeader();
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/payments/${orderId}`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/payments/create-order/${orderId}`,
     {
       method: "POST",
       headers
@@ -29,7 +29,6 @@ export const createPaymentAPI = async (orderId) => {
   if (!res.ok) {
     throw new Error("Failed to create payment");
   }
-
   return res.json(); // must return payment_link_url
 };
 

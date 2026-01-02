@@ -13,7 +13,8 @@ const paymentSlice = createSlice({
   name: "payment",
   initialState: {
     loading: false,
-    error: null
+    error: null,
+    razorpayOrder: null
   },
   reducers: {},
   extraReducers: (builder) => {

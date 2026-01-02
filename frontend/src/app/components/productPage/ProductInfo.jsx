@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart } from "../../../redux/cart/cartSlice";
+import { fetchRatings } from "@/redux/rating/ratingSlice";
+import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useRouter } from 'next/navigation';
 export default function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
@@ -11,8 +13,25 @@ export default function ProductInfo({ product }) {
   const [openSpecs, setOpenSpecs] = useState(false);
   const [openReviews, setOpenReviews] = useState(false);
   const [addedSize, setAddedSize] = useState(null);
-const router = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
+
+
+  const { averageRating, totalRatings, distribution } = useSelector(
+    (state) => state.rating
+  );
+
+  const { reviews, loading: reviewLoading } = useSelector(
+    (state) => state.review
+  );
+
+  useEffect(() => {
+    if (product?._id) {
+      dispatch(fetchRatings(product._id));
+      dispatch(fetchReviews(product._id));
+    }
+  }, [product?._id, dispatch]);
+
 
   const handleAddToCart = async () => {
     //  Size validation
@@ -43,6 +62,14 @@ const router = useRouter();
   useEffect(() => {
     setAddedSize(null);
   }, [selectedSize]);
+  const ratingBreakdown = [5, 4, 3, 2, 1].map((star) => {
+    const count = distribution?.[star] || 0;
+    const percent = totalRatings
+      ? Math.round((count / totalRatings) * 100)
+      : 0;
+
+    return { star, percent };
+  });
 
 
   return (
@@ -51,11 +78,17 @@ const router = useRouter();
       {/* -------- Ratings & Reviews -------- */}
       <div className="flex items-center gap-2 text-sm text-gray-600">
         <span className="font-semibold flex items-center gap-1">
-          ⭐ {product.rating}
+          ⭐ {averageRating || 0}
         </span>
-        <span className="text-gray-500">{product.reviews.length} Reviews</span>
 
-        <button className="text-blue-600 underline ml-2">
+        <span className="text-gray-500">
+          {totalRatings || 0} Reviews
+        </span>
+
+        <button
+          onClick={() => setOpenReviews(true)}
+          className="text-blue-600 underline ml-2"
+        >
           Write a Review
         </button>
       </div>
@@ -77,20 +110,6 @@ const router = useRouter();
 
       <p className="text-gray-500 text-sm mt-1">Inclusive of all taxes</p>
 
-      {/* -------- Color Options -------- */}
-      {/* <div className="mt-6">
-        <h4 className="text-sm font-semibold">More Color</h4>
-
-        <div className="flex gap-3 mt-2">
-          {product.colors.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              className="w-12 h-14 rounded-md border cursor-pointer object-cover"
-            />
-          ))}
-        </div>
-      </div> */}
 
       {/* -------- Size Selector -------- */}
       <div className="mt-6">
@@ -136,7 +155,7 @@ const router = useRouter();
       {/* -------- Add to Cart -------- */}
       <button
         onClick={
-           selectedSize && addedSize === selectedSize
+          selectedSize && addedSize === selectedSize
             ? () => router.push("/cart")
             : handleAddToCart
         }
@@ -192,46 +211,61 @@ const router = useRouter();
         )}
       </div>
 
-      {/* Specifications
-      <div className="border-t py-3">
-        <button
-          onClick={() => setOpenSpecs(!openSpecs)}
-          className="flex justify-between w-full text-left"
-        >
-          <span className="font-semibold">Specifications</span>
-          {openSpecs ? <ChevronUp /> : <ChevronDown />}
-        </button>
 
-        {openSpecs && (
-          <div className="text-sm text-gray-600 mt-3 space-y-1">
-            {product.specs.map((spec, i) => (
-              <p key={i}>• {spec}</p>
-            ))}
-          </div>
-        )}
-      </div> */}
 
       {/* Reviews */}
       <div className="border-t py-3">
         {/* -------- Rating Breakdown -------- */}
-        <div className="mt-6">
-          <h4 className="font-semibold mb-2 text-sm">Ratings Breakdown</h4>
 
-          {product.ratingBreakdown?.map((row, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm mb-1">
-              <span className="w-6">{row.star}★</span>
+        <h4 className="font-semibold mb-3 text-sm">Ratings Breakdown</h4>
 
-              <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-yellow-500"
-                  style={{ width: `${row.percent}%` }}
-                ></div>
+        <div className="flex gap-8 items-start">
+          {/* LEFT: Average Rating */}
+          <div className="min-w-[120px]">
+            <p className="text-4xl font-bold text-gray-900 leading-none">
+              {averageRating}
+              <span className="text-green-600 ml-1 text-2xl">★</span>
+            </p>
+
+            <p className="text-sm text-gray-500 mt-1">
+              {totalRatings === 0
+                ? "0 Verified Buyers"
+                : totalRatings >= 1000
+                  ? `${Math.floor(totalRatings / 1000)}k Verified Buyers`
+                  : `${totalRatings} Verified Buyers`}
+            </p>
+          </div>
+
+          {/* RIGHT: Bars */}
+          <div className="flex-1 space-y-2">
+            {ratingBreakdown.map((row) => (
+              <div key={row.star} className="flex items-center gap-3 text-sm">
+                {/* Star */}
+                <span className="w-6 text-gray-700">{row.star}★</span>
+
+                {/* Bar */}
+                <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${row.star >= 4
+                      ? "bg-green-500"
+                      : row.star === 3
+                        ? "bg-yellow-400"
+                        : "bg-red-400"
+                      }`}
+                    style={{ width: `${row.percent}%` }}
+                  />
+                </div>
+
+                {/* Count */}
+                <span className="w-10 text-right text-gray-500">
+                  {row.count}
+                </span>
               </div>
-
-              <span className="w-10 text-right">{row.percent}%</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+
 
         <button
           onClick={() => setOpenReviews(!openReviews)}
@@ -243,23 +277,35 @@ const router = useRouter();
 
         {openReviews && (
           <div className="mt-3 space-y-4">
-            {product.reviews.map((r, i) => (
-              <div key={i} className="border p-3 rounded-lg">
+            {reviewLoading && (
+              <p className="text-sm text-gray-500">Loading reviews...</p>
+            )}
+
+            {!reviewLoading && reviews.length === 0 && (
+              <p className="text-sm text-gray-500">No reviews yet</p>
+            )}
+
+            {reviews.map((r) => (
+              <div key={r._id} className="border p-3 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <img
-                    src={r.avatar}
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold">
+                    {r.user?.firstName?.[0]}
+                  </div>
+
                   <div>
-                    <p className="font-semibold text-sm">{r.name}</p>
+                    <p className="font-semibold text-sm">
+                      {r.user?.firstName} {r.user?.lastName}
+                    </p>
                     <p className="text-yellow-500 text-xs">⭐ {r.rating}</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 mt-2">{r.comment}</p>
+
+                <p className="text-sm text-gray-700 mt-2">{r.review}</p>
               </div>
             ))}
           </div>
         )}
+
       </div>
     </div>
   );

@@ -49,9 +49,9 @@ export default function CartPage() {
         0
     );
 
-    const convenienceFee = 99;
+   // const convenienceFee = 99;
 
-    const totalAmount = totalMRP - totalDiscount + convenienceFee;
+    const totalAmount = totalMRP - totalDiscount ;
 
 
     return (
@@ -136,7 +136,7 @@ export default function CartPage() {
                     <OrderSummary
                         totalMRP={totalMRP}
                         discount={totalDiscount}
-                        convenienceFee={convenienceFee}
+                        // convenienceFee={convenienceFee}
                         totalAmount={totalAmount}
                         showPlaceOrder
                         onPlaceOrder={() => {

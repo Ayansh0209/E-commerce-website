@@ -2,18 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import OrderHistory from '@/app/orderhistory/page';
 import { useDispatch, useSelector } from "react-redux";
 import { createOrder } from '@/redux/order/orderSlice';
 import { getOrderByIdAPI } from '@/redux/order/orderApi';
 import { useAuth } from "../../../context/AuthContext";
+
 import { createPayment } from "@/redux/payment/paymentSlice";
+import OrderSummary from './OrderSummary';
+import { fetchCart } from '@/redux/cart/cartSlice';
 import {
   fetchUserAddresses,
   addAddress,
   deleteAddress
 } from "@/redux/address/addressSlice";
 
+// import { useCheckout } from "../../cart/layout.jsx";
 
 
 export default function AddressPage() {
@@ -23,6 +26,8 @@ export default function AddressPage() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const { addresses, loading } = useSelector(state => state.address);
   const { user, loading:authLoad } = useAuth();
+  // const { setPaymentActive, setCompleted } = useCheckout();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,11 +44,11 @@ export default function AddressPage() {
   }
   }, [dispatch,user,authLoad]);
 
-  // useEffect(() => {
-  //   if (addresses.length && !selectedAddress) {
-  //     setSelectedAddress(addresses[0]._id);
-  //   }
-  // }, [addresses, selectedAddress]);
+  useEffect(() => {
+    if (addresses.length && !selectedAddress) {
+      setSelectedAddress(addresses[0]._id);
+    }
+  }, [addresses, selectedAddress]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -89,6 +94,62 @@ export default function AddressPage() {
   };
 
 
+  const { cart, loading:cartLoad } = useSelector(state => state.cart);
+useEffect(() => {
+  if (!authLoad && user) {
+    dispatch(fetchCart());
+  }
+}, [dispatch, user, authLoad]);
+
+
+// const handleContinuePayment = async () => {
+//   if (!selectedAddress) {
+//     alert("Please select an address");
+//     return;
+//   }
+  
+
+//   console.log("▶️ Selected Address ID:", selectedAddress);
+
+//   try {
+//     console.log("🟡 Creating order...");
+//     const order = await dispatch(createOrder(selectedAddress)).unwrap();
+//     console.log("✅ Order created:", order);
+
+//     console.log("🟡 Creating payment for order:", order._id);
+//     const payment = await dispatch(createPayment(order._id)).unwrap();
+//     console.log("✅ Payment response:", payment);
+
+//     if (payment.payment_link_url) {
+//       console.log("🚀 Redirecting to Razorpay:", payment.payment_link_url);
+//       window.location.href = payment.payment_link_url;
+//     } else {
+//       console.error("❌ No payment_link_url received");
+//       alert("Payment link not generated");
+//     }
+
+//   } catch (err) {
+//     console.error("❌ Checkout failed:", err);
+//     alert("Something went wrong. Please try again.");
+//   }
+// };
+
+// const handleContinuePayment = async () => {
+//   if (!selectedAddress) {
+//     alert("Please select an address");
+//     return;
+//   }
+
+//   try {
+//     const order = await dispatch(createOrder(selectedAddress)).unwrap();
+
+//     // Navigate to payment page with orderId
+//     router.push(`/cart/payment?orderId=${order._id}`);
+
+//   } catch (err) {
+//     alert("Checkout failed");
+//   }
+// };
 
 const handleContinuePayment = async () => {
   if (!selectedAddress) {
@@ -96,30 +157,66 @@ const handleContinuePayment = async () => {
     return;
   }
 
-  console.log("▶️ Selected Address ID:", selectedAddress);
-
   try {
-    console.log("🟡 Creating order...");
+    // Create Order (DB)
     const order = await dispatch(createOrder(selectedAddress)).unwrap();
-    console.log("✅ Order created:", order);
 
-    console.log("🟡 Creating payment for order:", order._id);
+    // Create Razorpay Order (backend)
     const payment = await dispatch(createPayment(order._id)).unwrap();
-    console.log("✅ Payment response:", payment);
-
-    if (payment.payment_link_url) {
-      console.log("🚀 Redirecting to Razorpay:", payment.payment_link_url);
-      window.location.href = payment.payment_link_url;
-    } else {
-      console.error("❌ No payment_link_url received");
-      alert("Payment link not generated");
+//setPaymentActive(true);
+    //  Safety check
+    if (!window.Razorpay) {
+      alert("Razorpay SDK not loaded");
+      return;
     }
 
+    // Open Razorpay Checkout
+    const options = {
+      key: "rzp_test_Ry8zIcTyXIvFja", // or hardcoded test key for now
+      amount: payment.amount,
+      currency: payment.currency,
+      name: "Faltu Fashion",
+      description: "Order Payment",
+      order_id: payment.razorpayOrderId,
+
+      prefill: {
+        name: payment.user?.name || "",
+        email: payment.user?.email || "",
+        contact: payment.user?.contact || ""
+      },
+
+      theme: {
+        color: "#ec4899"
+      },
+
+      handler: function (response) {
+          //setCompleted(true);
+        console.log("Payment success:", response);
+
+        // 👉 TODO (next step):
+        // verify payment on backend
+        // router.push(`/order/success?orderId=${order._id}`);
+      },
+
+      modal: {
+        ondismiss: function () {
+          console.log("Payment popup closed");
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+
   } catch (err) {
-    console.error("❌ Checkout failed:", err);
-    alert("Something went wrong. Please try again.");
+    console.error("Checkout error:", err);
+    alert("Checkout failed. Please try again.");
   }
 };
+
+
+
+
 
   const defaultAddress = addresses.length ? addresses[0] : null;
   const otherAddresses = addresses.length > 1 ? addresses.slice(1) : [];
@@ -127,10 +224,7 @@ const handleContinuePayment = async () => {
   const removeAddress = (id) => {
     dispatch(deleteAddress(id));
   };
-  const totalMRP = 2297.00;
-  const discount = 1601;
-  const convenienceFee = 50;
-  const totalAmount = 2347.00;
+  
 
   return (
     <>
@@ -280,73 +374,22 @@ const handleContinuePayment = async () => {
 
   {/* RIGHT COLUMN — ORDER SUMMARY */}
   <div className="lg:col-span-1">
-    <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-28">
-      <h2 className="text-lg font-bold mb-6 text-gray-800 uppercase">
-        Order Summary
-      </h2>
+   
 
-      <div className="space-y-3 mb-4">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Total MRP</span>
-          <span className="font-semibold">₹{totalMRP.toFixed(2)}</span>
-        </div>
+    
+ {cart && (
+  <OrderSummary
+    totalMRP={cart.totalPrice}         
+    discount={cart.discounts}         
+    totalAmount={cart.totalPrice - cart.discounts}
+    showAction
+    showPlaceOrder 
+    onPlaceOrder={handleContinuePayment}
+  />
+)}
 
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Discount on MRP</span>
-          <span className="text-green-600 font-semibold">-₹{discount}</span>
-        </div>
 
-        <div className="flex justify-between text-sm items-center">
-          <span className="text-gray-600">Coupon Discount</span>
-          <button className="text-pink-600 text-xs font-semibold hover:underline">
-            Apply Coupon
-          </button>
-        </div>
-
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Convenience Fee</span>
-          <span className="font-semibold">+₹{convenienceFee}</span>
-        </div>
-      </div>
-
-      <div className="border-t border-gray-200 pt-4">
-        <div className="flex justify-between text-base font-bold">
-          <span>Total Amount</span>
-          <span>₹{totalAmount.toFixed(2)}</span>
-        </div>
-      </div>
-    </div>
-
-    <div className="mt-6">
-      <button
-        onClick={handleContinuePayment}
-        className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
-      >
-        Continue Payment
-      </button>
-    </div>
   </div>
-
-
-
-        {/* <div className="lg:col-span-1">
-                           <OrderSummary
-                               totalMRP={totalMRP}
-                               discount={totalDiscount}
-                               convenienceFee={convenienceFee}
-                               totalAmount={totalAmount}
-                               showPlaceOrder
-                               onPlaceOrder={() => {
-                                   if (!user) {
-                                       setShowAuth(true); // auth modal later
-                                       return;
-                                   }
-                                   router.push("/cart/address");
-                               }}
-                           />
-                       </div> */}
-
-
 
       </div>
 

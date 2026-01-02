@@ -2,10 +2,10 @@
 import { useRouter } from "next/navigation";
 export default function Category() {
   const categories = [
-    { image: "/images/steal-look.jpg", title: "T-Shirts", label: "" },
-    { image: "/images/oversized-tees.jpg", title: "Gym Wear" },
-    { image: "/images/trousers.jpg", title: "TROUSERS" },
-    { image: "/images/sweatshirts.jpg", title: "Polos" },
+    { image: "//xtremexmartialarts.com/cdn/shop/files/product_2.png?v=1766834995&width=800",title:"T-shirt" },
+    { image: "//xtremexmartialarts.com/cdn/shop/files/ov_tshirt_1.png?v=1767077161&width=800" ,title:"Gym Wear"},
+    { image: "https://xtremexmartialarts.com/cdn/shop/files/joggers_1_2.png?v=1767077157&width=800", title: "TROUSERS" },
+    { image: "https://xtremexmartialarts.com/cdn/shop/files/product_6.png?v=1766835001&width=800", title: "Polos" },
   ];
   const router = useRouter();
   const handleClick = (category) => {
@@ -28,7 +28,7 @@ export default function Category() {
               alt={cat.title}
               className="w-full h-110 object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-5">
+            <div className="absolute inset-0 flex flex-col justify-end p-5">
               {cat.label && (
                 <span className="bg-white text-black text-xs font-bold px-2 py-1 rounded mb-2 w-fit">
                   {cat.label}

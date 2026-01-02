@@ -1,8 +1,8 @@
 export default function OrderSummary({
-  totalMRP,
-  discount,
-  convenienceFee,
-  totalAmount,
+  totalMRP = 0,
+  discount = 0,
+  //convenienceFee = 0,
+  totalAmount = 0,
   showPlaceOrder = false,
   onPlaceOrder,
 }) {
@@ -32,10 +32,10 @@ export default function OrderSummary({
           </button>
         </div>
 
-        <div className="flex justify-between text-sm">
+        {/* <div className="flex justify-between text-sm">
           <span className="text-gray-600">Convenience Fee</span>
           <span className="font-semibold">+₹{convenienceFee}</span>
-        </div>
+        </div> */}
       </div>
 
       <div className="border-t border-gray-200 pt-4">
@@ -50,7 +50,7 @@ export default function OrderSummary({
           onClick={onPlaceOrder}
           className="w-full mt-6 bg-black text-white py-3 rounded font-semibold hover:bg-gray-800"
         >
-          Place Order
+          Continue
         </button>
       )}
     </div>
