@@ -53,7 +53,7 @@ export const removeCartItemAPI = async (cartItemId) => {
   const headers = await getAuthHeader();
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart/${cartItemId}`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart_items/${cartItemId}`,
     {
       method: "DELETE",
       headers,

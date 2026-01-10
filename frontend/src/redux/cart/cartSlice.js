@@ -18,13 +18,17 @@ export const addItemToCart = createAsyncThunk(
 
 export const removeCartItem = createAsyncThunk(
   "cart/removeItem",
-  async (cartItemId) => await removeCartItemAPI(cartItemId)
+  async (cartItemId, { dispatch }) => {
+    await removeCartItemAPI(cartItemId);
+    dispatch(fetchCart());
+  }
 );
 
+
 export const updateCartItem = createAsyncThunk(
-    "cart/updateItem",
-    async ({ cartItemId, data }) =>
-    await updateCartItemAPI(cartItemId, data )
+  "cart/updateItem",
+  async ({ cartItemId, data }) =>
+    await updateCartItemAPI(cartItemId, data)
 
 )
 
@@ -36,7 +40,7 @@ const cartSlice = createSlice({
     error: null,
   },
   reducers: {
-    clearCart:(state)=>{
+    clearCart: (state) => {
       state.cart = null;
     }
   },
@@ -52,9 +56,10 @@ const cartSlice = createSlice({
       .addCase(addItemToCart.fulfilled, (state, action) => {
         state.cart = action.payload;
       })
-      .addCase(removeCartItem.fulfilled, (state, action) => {
-        state.cart = action.payload;
+      .addCase(removeCartItem.fulfilled, (state) => {
+        state.loading = false;
       })
+
       .addCase(updateCartItem.fulfilled, (state, action) => {
         state.cart = action.payload;
       })
