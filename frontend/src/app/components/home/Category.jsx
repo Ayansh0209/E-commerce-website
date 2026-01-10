@@ -2,9 +2,9 @@
 import { useRouter } from "next/navigation";
 export default function Category() {
   const categories = [
-    { image: "//xtremexmartialarts.com/cdn/shop/files/product_2.png?v=1766834995&width=800",title:"T-shirt" },
+    { image: "//xtremexmartialarts.com/cdn/shop/files/product_2.png?v=1766834995&width=800",title:"T-Shirts" },
     { image: "//xtremexmartialarts.com/cdn/shop/files/ov_tshirt_1.png?v=1767077161&width=800" ,title:"Gym Wear"},
-    { image: "https://xtremexmartialarts.com/cdn/shop/files/joggers_1_2.png?v=1767077157&width=800", title: "TROUSERS" },
+    { image: "https://xtremexmartialarts.com/cdn/shop/files/joggers_1_2.png?v=1767077157&width=800", title: "Trousers" },
     { image: "https://xtremexmartialarts.com/cdn/shop/files/product_6.png?v=1766835001&width=800", title: "Polos" },
   ];
   const router = useRouter();

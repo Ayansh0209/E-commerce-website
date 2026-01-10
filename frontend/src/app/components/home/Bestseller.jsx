@@ -10,7 +10,7 @@ const Bestseller = ({ data, sectionName }) => {
   const responsive = {
     0: { items: 1 },
     568: { items: 2 },
-    1024: { items: 5 },
+    1024: { items:5 },
   }
 
 const items = data.slice(0,15).map((item)=>(<div key={item} className="px-2"><ProductCard product={item}/>

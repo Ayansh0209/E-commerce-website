@@ -53,7 +53,7 @@ const HeroBanner = () => {
         items={items}
         infinite
         autoPlay
-        autoPlayInterval={4000}
+        autoPlayInterval={2000}
        
         disableDotsControls={true}
         disableButtonsControls={true}

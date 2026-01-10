@@ -140,7 +140,7 @@ export default function ProductInfo({ product }) {
 
                   {isOutOfStock && (
                     <span className="absolute inset-0 pointer-events-none">
-                      <span className="absolute w-[150%] h-[1.5px] bg-gray-400 rotate-[-45deg] top-1/2 left-[-25%]" />
+                      <span className="absolute w-[150%] h-[1.5px] bg-gray-400 -rotate[-45deg] top-1/2 left-[-25%]" />
                     </span>
                   )}
 

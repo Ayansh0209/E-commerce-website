@@ -127,8 +127,8 @@ const fbt =
           </div>
         )}
 
-        <Footer />
       </div>
+        <Footer />
     </div>
   );
 }
