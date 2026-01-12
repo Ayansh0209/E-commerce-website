@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createOrder } from '@/redux/order/orderSlice';
 import { getOrderByIdAPI } from '@/redux/order/orderApi';
 import { useAuth } from "../../../context/AuthContext";
+import { finalizePayment } from "@/redux/payment/paymentSlice";
 
 import { createPayment } from "@/redux/payment/paymentSlice";
 import OrderSummary from './OrderSummary';
@@ -25,7 +26,7 @@ export default function AddressPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const { addresses, loading } = useSelector(state => state.address);
-  const { user, loading:authLoad } = useAuth();
+  const { user, loading: authLoad } = useAuth();
   // const { setPaymentActive, setCompleted } = useCheckout();
 
   const [formData, setFormData] = useState({
@@ -39,10 +40,10 @@ export default function AddressPage() {
   });
 
   useEffect(() => {
-     if (!authLoad && user) {
-    dispatch(fetchUserAddresses());
-  }
-  }, [dispatch,user,authLoad]);
+    if (!authLoad && user) {
+      dispatch(fetchUserAddresses());
+    }
+  }, [dispatch, user, authLoad]);
 
   useEffect(() => {
     if (addresses.length && !selectedAddress) {
@@ -94,127 +95,80 @@ export default function AddressPage() {
   };
 
 
-  const { cart, loading:cartLoad } = useSelector(state => state.cart);
-useEffect(() => {
-  if (!authLoad && user) {
-    dispatch(fetchCart());
-  }
-}, [dispatch, user, authLoad]);
+  const { cart, loading: cartLoad } = useSelector(state => state.cart);
+  useEffect(() => {
+    if (!authLoad && user) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, user, authLoad]);
 
 
-// const handleContinuePayment = async () => {
-//   if (!selectedAddress) {
-//     alert("Please select an address");
-//     return;
-//   }
-  
 
-//   console.log("▶️ Selected Address ID:", selectedAddress);
-
-//   try {
-//     console.log("🟡 Creating order...");
-//     const order = await dispatch(createOrder(selectedAddress)).unwrap();
-//     console.log("✅ Order created:", order);
-
-//     console.log("🟡 Creating payment for order:", order._id);
-//     const payment = await dispatch(createPayment(order._id)).unwrap();
-//     console.log("✅ Payment response:", payment);
-
-//     if (payment.payment_link_url) {
-//       console.log("🚀 Redirecting to Razorpay:", payment.payment_link_url);
-//       window.location.href = payment.payment_link_url;
-//     } else {
-//       console.error("❌ No payment_link_url received");
-//       alert("Payment link not generated");
-//     }
-
-//   } catch (err) {
-//     console.error("❌ Checkout failed:", err);
-//     alert("Something went wrong. Please try again.");
-//   }
-// };
-
-// const handleContinuePayment = async () => {
-//   if (!selectedAddress) {
-//     alert("Please select an address");
-//     return;
-//   }
-
-//   try {
-//     const order = await dispatch(createOrder(selectedAddress)).unwrap();
-
-//     // Navigate to payment page with orderId
-//     router.push(`/cart/payment?orderId=${order._id}`);
-
-//   } catch (err) {
-//     alert("Checkout failed");
-//   }
-// };
-
-const handleContinuePayment = async () => {
-  if (!selectedAddress) {
-    alert("Please select an address");
-    return;
-  }
-
-  try {
-    // Create Order (DB)
-    const order = await dispatch(createOrder(selectedAddress)).unwrap();
-
-    // Create Razorpay Order (backend)
-    const payment = await dispatch(createPayment(order._id)).unwrap();
-//setPaymentActive(true);
-    //  Safety check
-    if (!window.Razorpay) {
-      alert("Razorpay SDK not loaded");
+  const handleContinuePayment = async () => {
+    if (!selectedAddress) {
+      alert("Please select an address");
       return;
     }
 
-    // Open Razorpay Checkout
-    const options = {
-      key: "rzp_test_Ry8zIcTyXIvFja", // or hardcoded test key for now
-      amount: payment.amount,
-      currency: payment.currency,
-      name: "Faltu Fashion",
-      description: "Order Payment",
-      order_id: payment.razorpayOrderId,
+    try {
+      // Create Order (DB)
+      const order = await dispatch(createOrder(selectedAddress)).unwrap();
 
-      prefill: {
-        name: payment.user?.name || "",
-        email: payment.user?.email || "",
-        contact: payment.user?.contact || ""
-      },
-
-      theme: {
-        color: "#ec4899"
-      },
-
-      handler: function (response) {
-          //setCompleted(true);
-        console.log("Payment success:", response);
-
-        // 👉 TODO (next step):
-        // verify payment on backend
-        // router.push(`/order/success?orderId=${order._id}`);
-      },
-
-      modal: {
-        ondismiss: function () {
-          console.log("Payment popup closed");
-        }
+      // Create Razorpay Order (backend)
+      const payment = await dispatch(createPayment(order._id)).unwrap();
+      //setPaymentActive(true);
+      //  Safety check
+      if (!window.Razorpay) {
+        alert("Razorpay SDK not loaded");
+        return;
       }
-    };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      // Open Razorpay Checkout
+      const options = {
+        //key:process.env.RAZORPAY_KEY_ID,
+        key:"rzp_test_Ry8zIcTyXIvFja",
+        amount: payment.amount,
+        currency: payment.currency,
+        name: "Faltu Fashion",
+        description: "Order Payment",
+        order_id: payment.razorpayOrderId,
 
-  } catch (err) {
-    console.error("Checkout error:", err);
-    alert("Checkout failed. Please try again.");
-  }
-};
+        prefill: {
+          name: payment.user?.name || "",
+          email: payment.user?.email || "",
+          contact: payment.user?.contact || ""
+        },
 
+        theme: {
+          color: "#ec4899"
+        },
 
+        handler: function (response) {
+          dispatch(
+            finalizePayment({
+              paymentId: response.razorpay_payment_id,
+              orderId: order._id,
+            })
+          );
+
+          router.push("/orders");
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log("Payment popup closed");
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      console.error("Checkout error:", err);
+      alert("Checkout failed. Please try again.");
+    }
+  };
 
 
 
@@ -224,172 +178,172 @@ const handleContinuePayment = async () => {
   const removeAddress = (id) => {
     dispatch(deleteAddress(id));
   };
-  
+
 
   return (
     <>
-    <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
 
-  {/* LEFT COLUMN — ADDRESS */}
-  <div className="lg:col-span-2">
-    <div className="bg-white border border-gray-200 rounded-lg">
+        {/* LEFT COLUMN — ADDRESS */}
+        <div className="lg:col-span-2">
+          <div className="bg-white border border-gray-200 rounded-lg">
 
-      {/* Header */}
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-800">
-          Select Delivery Address
-        </h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 border-2 border-black text-black font-semibold rounded hover:bg-black hover:text-white transition-colors"
-        >
-          ADD NEW ADDRESS
-        </button>
-      </div>
-
-      {/* DEFAULT ADDRESS */}
-      {defaultAddress && (
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
-            Default Address
-          </h3>
-
-          <div className="border-2 border-black rounded-lg p-5 bg-gray-50">
-            <div className="flex items-start gap-4">
-              <input
-                type="radio"
-                name="address"
-                checked={selectedAddress === defaultAddress._id}
-                onChange={() => setSelectedAddress(defaultAddress._id)}
-                className="mt-1 w-5 h-5 accent-black"
-              />
-
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-gray-900">
-                    {defaultAddress.firstName} {defaultAddress.lastName}
-                  </span>
-                  <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded">
-                    HOME
-                  </span>
-                </div>
-
-                <p className="text-gray-700 text-sm mb-1">
-                  {defaultAddress.streetAddress}
-                </p>
-                <p className="text-gray-700 text-sm mb-3">
-                  {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.zipCode}
-                </p>
-
-                <p className="text-gray-700 text-sm mb-3">
-                  Mobile: <strong>{defaultAddress.mobile}</strong>
-                </p>
-
-                <p className="text-sm text-gray-600">
-                  • Cash on Delivery available
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-4 ml-9">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-800">
+                Select Delivery Address
+              </h2>
               <button
-                onClick={() => removeAddress(defaultAddress._id)}
-                className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                onClick={() => setShowModal(true)}
+                className="px-4 py-2 border-2 border-black text-black font-semibold rounded hover:bg-black hover:text-white transition-colors"
               >
-                REMOVE
-              </button>
-              <button
-                onClick={() => handleEditAddress(defaultAddress)}
-                className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
-              >
-                EDIT
+                ADD NEW ADDRESS
               </button>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* OTHER ADDRESSES */}
-      {otherAddresses.length > 0 && (
-        <div className="p-6">
-          <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
-            Other Address
-          </h3>
+            {/* DEFAULT ADDRESS */}
+            {defaultAddress && (
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
+                  Default Address
+                </h3>
 
-          <div className="space-y-4">
-            {otherAddresses.map(address => (
-              <div
-                key={address._id}
-                className="border-2 border-gray-300 rounded-lg p-5 hover:border-gray-400 transition-colors"
-              >
-                <div className="flex items-start gap-4">
-                  <input
-                    type="radio"
-                    name="address"
-                    checked={selectedAddress === address._id}
-                    onChange={() => setSelectedAddress(address._id)}
-                    className="mt-1 w-5 h-5 accent-black"
-                  />
+                <div className="border-2 border-black rounded-lg p-5 bg-gray-50">
+                  <div className="flex items-start gap-4">
+                    <input
+                      type="radio"
+                      name="address"
+                      checked={selectedAddress === defaultAddress._id}
+                      onChange={() => setSelectedAddress(defaultAddress._id)}
+                      className="mt-1 w-5 h-5 accent-black"
+                    />
 
-                  <div className="flex-1">
-                    <p className="font-bold text-gray-900 mb-2">
-                      {address.firstName} {address.lastName}
-                    </p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-bold text-gray-900">
+                          {defaultAddress.firstName} {defaultAddress.lastName}
+                        </span>
+                        <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded">
+                          HOME
+                        </span>
+                      </div>
 
-                    <p className="text-gray-700 text-sm mb-1">
-                      {address.streetAddress}
-                    </p>
-                    <p className="text-gray-700 text-sm mb-3">
-                      {address.city}, {address.state} - {address.zipCode}
-                    </p>
+                      <p className="text-gray-700 text-sm mb-1">
+                        {defaultAddress.streetAddress}
+                      </p>
+                      <p className="text-gray-700 text-sm mb-3">
+                        {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.zipCode}
+                      </p>
 
-                    <p className="text-gray-700 text-sm">
-                      Mobile: <strong>{address.mobile}</strong>
-                    </p>
+                      <p className="text-gray-700 text-sm mb-3">
+                        Mobile: <strong>{defaultAddress.mobile}</strong>
+                      </p>
+
+                      <p className="text-sm text-gray-600">
+                        • Cash on Delivery available
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-4 ml-9">
+                    <button
+                      onClick={() => removeAddress(defaultAddress._id)}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                    >
+                      REMOVE
+                    </button>
+                    <button
+                      onClick={() => handleEditAddress(defaultAddress)}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                    >
+                      EDIT
+                    </button>
                   </div>
                 </div>
+              </div>
+            )}
 
-                <div className="flex gap-3 mt-4 ml-9">
-                  <button
-                    onClick={() => removeAddress(address._id)}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
-                  >
-                    REMOVE
-                  </button>
-                  <button
-                    onClick={() => handleEditAddress(address)}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
-                  >
-                    EDIT
-                  </button>
+            {/* OTHER ADDRESSES */}
+            {otherAddresses.length > 0 && (
+              <div className="p-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
+                  Other Address
+                </h3>
+
+                <div className="space-y-4">
+                  {otherAddresses.map(address => (
+                    <div
+                      key={address._id}
+                      className="border-2 border-gray-300 rounded-lg p-5 hover:border-gray-400 transition-colors"
+                    >
+                      <div className="flex items-start gap-4">
+                        <input
+                          type="radio"
+                          name="address"
+                          checked={selectedAddress === address._id}
+                          onChange={() => setSelectedAddress(address._id)}
+                          className="mt-1 w-5 h-5 accent-black"
+                        />
+
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900 mb-2">
+                            {address.firstName} {address.lastName}
+                          </p>
+
+                          <p className="text-gray-700 text-sm mb-1">
+                            {address.streetAddress}
+                          </p>
+                          <p className="text-gray-700 text-sm mb-3">
+                            {address.city}, {address.state} - {address.zipCode}
+                          </p>
+
+                          <p className="text-gray-700 text-sm">
+                            Mobile: <strong>{address.mobile}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 mt-4 ml-9">
+                        <button
+                          onClick={() => removeAddress(address._id)}
+                          className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                        >
+                          REMOVE
+                        </button>
+                        <button
+                          onClick={() => handleEditAddress(address)}
+                          className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded"
+                        >
+                          EDIT
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
           </div>
         </div>
-      )}
 
-    </div>
-  </div>
-
-  {/* RIGHT COLUMN — ORDER SUMMARY */}
-  <div className="lg:col-span-1">
-   
-
-    
- {cart && (
-  <OrderSummary
-    totalMRP={cart.totalPrice}         
-    discount={cart.discounts}         
-    totalAmount={cart.totalPrice - cart.discounts}
-    showAction
-    showPlaceOrder 
-    onPlaceOrder={handleContinuePayment}
-  />
-)}
+        {/* RIGHT COLUMN — ORDER SUMMARY */}
+        <div className="lg:col-span-1">
 
 
-  </div>
+
+          {cart && (
+            <OrderSummary
+              totalMRP={cart.totalPrice}
+              discount={cart.discounts}
+              totalAmount={cart.totalPrice - cart.discounts}
+              showAction
+              showPlaceOrder
+              onPlaceOrder={handleContinuePayment}
+            />
+          )}
+
+
+        </div>
 
       </div>
 

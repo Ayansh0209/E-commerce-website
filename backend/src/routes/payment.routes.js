@@ -8,17 +8,10 @@ const paymentController = require("../controller/payment.controller")
 
 
 router.post("/create-order/:orderId",authenticate, paymentController.createPaymentLink);
+router.post("/", authenticate, paymentController.updateOrderInfo);
 
-// router.post(
-//   "/verify",
-//   authenticate,
-//   paymentController.verifyPayment
-// );
 
-// router.post(
-//   "/cod/:orderId",
-//   authenticate,
-//   paymentController.placeCodOrder
-// );
+
+
 
 module.exports = router

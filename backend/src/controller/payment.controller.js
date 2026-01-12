@@ -16,7 +16,7 @@ const paymentService  = require('../services/payment.service.js');
 
  const updateOrderInfo = async(req, res)=>{
     try{
-        await paymentService.updateOrderInfo(req.query);
+        await paymentService.updateOrderInfo(req.body);
         return res.status(200).send({message:"payment information",status:true})
 
     }catch(error){

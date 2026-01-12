@@ -33,15 +33,24 @@ export const createPaymentAPI = async (orderId) => {
 };
 
 export const updateOrderInfo = async (reqData) => {
-    try {
-    const { data } = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/payments?payment_id=${reqData.paymentId}&order_id=${reqData.orderId}`
-    );
+  const headers = await getAuthHeader();
 
-    console.log("update payment : - ", data);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/payments`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        payment_id: reqData.paymentId,
+        order_id: reqData.orderId,
+      }),
+    }
+  );
 
-} catch (error) {
-    throw new Error("payment failed");
-}
+  if (!res.ok) {
+    throw new Error("Payment update failed");
+  }
 
-   
-}
+  return res.json();
+};
+

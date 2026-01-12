@@ -91,4 +91,18 @@ async function addCartItem(userId, req) {
     }
 }
 
-module.exports = { createCart, findUserCart, addCartItem }
+async function clearUserCart(userId) {
+  const cart = await Cart.findOne({ user: userId });
+  if (!cart) return;
+
+  await CartItem.deleteMany({ cart: cart._id });
+  cart.cartItems = [];
+  cart.totalPrice = 0;
+  cart.totalItem = 0;
+  cart.discounts = 0;
+
+  await cart.save();
+}
+
+
+module.exports = { createCart, findUserCart, addCartItem ,clearUserCart}

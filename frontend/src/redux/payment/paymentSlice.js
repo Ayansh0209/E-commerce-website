@@ -1,11 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createPaymentAPI } from "./paymentapi";
-
+import { updateOrderInfo } from "./paymentapi";
+import { fetchCart } from "../cart/cartSlice";
+//import { fetchOrders } from "../order/orderSlice";
 
 export const createPayment = createAsyncThunk(
   "payment/create",
   async (orderId) => {
     return await createPaymentAPI(orderId);
+  }
+);
+
+export const finalizePayment = createAsyncThunk(
+  "payment/finalize",
+  async ({ paymentId, orderId }, { dispatch }) => {
+    await updateOrderInfo({ paymentId, orderId });
+
+    dispatch(fetchCart());       // Cart becomes empty
+   // dispatch(fetchOrders());     // Orders page updates
   }
 );
 
