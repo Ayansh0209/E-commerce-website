@@ -46,3 +46,18 @@ export const getOrderByIdAPI = async (orderId) => {
 
   return res.json();
 };
+
+export const getUserOrdersAPI = async () => {
+  const headers = await getAuthHeader();
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/orders/user`,
+    { headers }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch orders");
+  }
+
+  return res.json();
+};
