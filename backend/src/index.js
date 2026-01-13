@@ -19,7 +19,7 @@ const reviewRouters = require("./routes/review.routes.js")
 const ratingRouters = require("./routes/rating.routes.js")      
 const paymentRouter = require("./routes/payment.routes.js")
 const addressRoutes = require("./routes/address.routes.js");
-
+const tracking =  require("./routes/shiprocket.routes")
 //app.use("/auth",authRouters)
 app.use("/api/users",userRouters)
 app.use("/api/products",productRouters)
@@ -33,6 +33,7 @@ app.use("/api/ratings",ratingRouters)
 app.use("/api/payments",paymentRouter)
 app.use("/api/addresses", addressRoutes);
 
+app.use("/api/webhooks", tracking);
 
 
 

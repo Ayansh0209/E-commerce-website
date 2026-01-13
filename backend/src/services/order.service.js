@@ -3,20 +3,7 @@ const Address = require("../models/address.model.js");
 const Order = require("../models/order.model.js");
 const OrderItems = require("../models/orderitems.js");
 async function createOrder(user, addressId) {
-    // let address;
-    // if (shippAddress._id) {
-    //     let existAddress = await Address.findById(shippAddress._id);
-    //     address = existAddress;
-    // }
-    // else {
-    //     address = new Address(shippAddress);
-    //     address.user = user;
-    //     await address.save();
 
-    //     user.address.push(address._id);
-
-    //     await user.save();
-    // }
 
     const address = await Address.findOne({
         _id: addressId,
@@ -75,7 +62,7 @@ async function placeOrder(orderId) {
     const order = await findOrderById(orderId);
 
     order.orderStatus = "PLACED";
-    order.paymentDetails.status = "COMPLETED";
+    order.paymentDetails.paymentStatus = "COMPLETED";
 
     return await order.save();
 

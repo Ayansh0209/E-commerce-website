@@ -1,6 +1,7 @@
 const razorpay = require("../config/razorpay")
 const orderService = require("../services/order.service.js")
 const cartService = require("../services/cart.service.js")
+const shiprocketService = require("../services/shiprocket.service.js")
 // const createPaymentLink = async(orderId)=>{
 //     try{
 //     const order =  await orderService.findOrderById(orderId);
@@ -21,7 +22,7 @@ const cartService = require("../services/cart.service.js")
 //         callback_url:`http://localhost:3000/payment/${orderId}`,
 //         callback_method: 'get'
 //     };
-     
+
 //     const paymentLink = await Razorpay.paymentLink.create(paymentLinkReq);
 //     const paymentLinkId = paymentLink.id;
 //     const payment_link_url = paymentLink.short_url;
@@ -110,9 +111,12 @@ const updateOrderInfo = async (reqData) => {
       order.paymentDetails.paymentStatus = "COMPLETED";
       order.orderStatus = "PLACED";
       await order.save();
-
-      //  CLEAR CART HERE
       await cartService.clearUserCart(order.user);
+      if (!order.shipment || !order.shipment.shipmentId) {
+        await shiprocketService.createShiprocketOrder(order._id);
+      }
+      //  CLEAR CART HERE
+      //await cartService.clearUserCart(order.user._id || order.user);
 
       return {
         success: true,
@@ -127,8 +131,8 @@ const updateOrderInfo = async (reqData) => {
 };
 
 
-module.exports={
-    //createPaymentLink,
-    updateOrderInfo,
-    createRazorpayOrder
+module.exports = {
+  //createPaymentLink,
+  updateOrderInfo,
+  createRazorpayOrder
 }

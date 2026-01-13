@@ -10,9 +10,6 @@ import { fetchProductId, clearProduct } from "../../../redux/product/productSlic
 import { useEffect } from "react";
 import { fetchProduct } from "../../../redux/product/productSlice";
 
-// ----------------------------------
-// DYNAMIC PRODUCT DATA (dummy now)
-// ----------------------------------
 
 
 export default function ProductPage() {

@@ -51,7 +51,16 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        required: true,
+        enum: [
+            "PENDING",
+            "PLACED",
+            "CONFIRMED",
+            "PACKED",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED",
+            "RETURNED"
+        ],
         default: "PENDING"
     },
     totalItem: {
@@ -62,6 +71,19 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    shipment: {
+        provider: {
+            type: String,
+            default: "SHIPROCKET"
+        },
+        shipmentId: String,
+        orderId: String,       // Shiprocket order id
+        awb: String,           // tracking number
+        courier: String,
+        status: String,
+        estimatedDelivery: Date
+    }
+
 });
 
 const Order = mongoose.model('orders', orderSchema);
