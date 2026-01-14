@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-  
+
     firebaseUid: {
         type: String,
         required: true,
@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    wishlist: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "products"
+        }
+    ],
     role: {
         type: String,
         required: true,
