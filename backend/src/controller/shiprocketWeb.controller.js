@@ -9,7 +9,10 @@ async function shiprocketWebhook(req, res) {
             current_status,
             shipment_id,
             courier_name,
-            etd
+            etd,
+            location,
+            scan_date_time,
+            description
         } = payload;
 
         // find order by AWB
@@ -22,25 +25,32 @@ async function shiprocketWebhook(req, res) {
         }
 
         // update shipment
-        order.shipment.status = current_status;
         order.shipment.shipmentId = shipment_id;
         order.shipment.courier = courier_name;
-        order.shipment.estimatedDelivery = etd ? new Date(etd) : null;
+        order.shipment.status = current_status;
+        order.shipment.estimatedDelivery = etd
+            ? new Date(etd)
+            : order.shipment.estimatedDelivery;
+
+        order.shipment.events.push({
+            status: current_status,
+            location: location || "",
+            message: description || "",
+            time: scan_date_time ? new Date(scan_date_time) : new Date()
+        });
 
         // 🔁 map shipment status → order status
-       
-        if (
-            ["PICKED_UP", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(current_status)
-        ) {
+
+        if (["PICKED_UP", "IN_TRANSIT"].includes(current_status)) {
             order.orderStatus = "SHIPPED";
+        }
+
+        if (current_status === "OUT_FOR_DELIVERY") {
+            order.orderStatus = "OUT_FOR_DELIVERY";
         }
 
         if (current_status === "DELIVERED") {
             order.orderStatus = "DELIVERED";
-        }
-
-        if (current_status === "RTO") {
-            order.orderStatus = "RETURNED";
         }
 
 

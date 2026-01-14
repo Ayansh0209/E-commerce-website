@@ -81,7 +81,19 @@ const orderSchema = new mongoose.Schema({
         awb: String,           // tracking number
         courier: String,
         status: String,
-        estimatedDelivery: Date
+        estimatedDelivery: Date,
+//////////////////////////////////////////////
+
+ events: [
+    {
+      status: String,
+      location: String,
+      message: String,
+      time: Date
+    }
+  ]
+
+
     }
 
 });
