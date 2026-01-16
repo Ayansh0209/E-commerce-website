@@ -1,15 +1,17 @@
 const reviewService = require("../services/review.js")
 
 const createReview = async (req, res) => {
-
-    const user = req.user;
-    try {
-        const review = await reviewService.createReview(req.body, user);
-        return res.status(201).send(review);
-    } catch (error) {
-        return res.status(500).send({ error: error.message })
+  try {
+    const review = await reviewService.createReview(req.body, req.user);
+    return res.status(201).send(review);
+  } catch (error) {
+    if (error.statusCode === 409) {
+      return res.status(409).send({ message: error.message });
     }
-}
+    console.error("CREATE REVIEW ERROR:", error);
+    return res.status(500).send({ message: "Failed to create review" });
+  }
+};
 
 
 const getAllReview = async (req, res) => {

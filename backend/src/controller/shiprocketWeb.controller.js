@@ -1,5 +1,5 @@
 const Order = require("../models/order.model");
-
+const { checkPinCode } = require("../services/shiprocket.service");
 async function shiprocketWebhook(req, res) {
     try {
         const payload = req.body;
@@ -63,4 +63,39 @@ async function shiprocketWebhook(req, res) {
     }
 }
 
-module.exports = { shiprocketWebhook };
+
+
+async function checkDelivery(req, res) {
+  try {
+    const { pincode } = req.query;
+
+    // basic validation
+    if (!pincode || !/^[0-9]{6}$/.test(pincode)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pincode",
+      });
+    }
+
+    const result = await checkPinCode({
+      deliveryPincode: pincode,
+      cod: true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      ...result,
+    });
+  }catch (error) {
+  console.error("FULL ERROR:", error);
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
+
+}
+
+
+
+module.exports = { shiprocketWebhook,checkDelivery };

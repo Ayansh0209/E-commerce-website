@@ -9,10 +9,28 @@ import AuthModal from "./auth/AuthModal";
 import { useUserProfile } from "@/context/UserProfileContext";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/redux/cart/cartSlice";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 const Navbar = () => {
   const { user, loading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const dispatch = useDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    setSearch("");
+  }, [pathname, searchParams]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    router.push(`/shop?query=${encodeURIComponent(search)}`);
+  };
+
 
   const [openAuth, setOpenAuth] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -44,7 +62,7 @@ const Navbar = () => {
         <Link href="/" className="text-2xl font-extrabold tracking-widest">
           FALTU FASHION
         </Link>
-        
+
 
         {/* Links */}
         <div className="hidden md:flex space-x-10">
@@ -57,7 +75,19 @@ const Navbar = () => {
         {/* Right Icons */}
         <div className="flex items-center space-x-5 relative">
           {/* Search */}
-          <img src="/icons/searchIcon.svg" width="24" />
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex items-center bg-gray-100 rounded-md px-3 py-2 w-80"
+          >
+            <img src="/icons/searchIcon.svg" width="16" className="mr-2 opacity-60" />
+            <input
+              type="text"
+              placeholder="Search for products, brands and more"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent outline-none text-sm w-full"
+            />
+          </form>
 
           {/* User */}
           {!loading && (
@@ -94,7 +124,7 @@ const Navbar = () => {
                       >
                         My Profile
                       </Link>
-{/* !profile?.address?.length */}
+                      {/* !profile?.address?.length */}
                       {!profileLoading && !profile?.address?.length && (
                         <Link
                           href="/profile/address"

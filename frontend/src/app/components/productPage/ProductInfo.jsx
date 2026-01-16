@@ -7,12 +7,24 @@ import { addItemToCart } from "../../../redux/cart/cartSlice";
 import { fetchRatings } from "@/redux/rating/ratingSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/context/AuthContext";
+import { createReviewAPI } from "@/redux/review/reviewApi";
+import { createRatingAPI } from "@/redux/rating/ratingApi";
+
 export default function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
   const [openDetails, setOpenDetails] = useState(false);
   const [openSpecs, setOpenSpecs] = useState(false);
   const [openReviews, setOpenReviews] = useState(false);
   const [addedSize, setAddedSize] = useState(null);
+  const [pincode, setPincode] = useState("");
+  const [deliveryInfo, setDeliveryInfo] = useState(null);
+  const [checkingPincode, setCheckingPincode] = useState(false);
+  const [pincodeError, setPincodeError] = useState("");
+  
+  const { user, loading } = useAuth();
+
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -71,6 +83,47 @@ export default function ProductInfo({ product }) {
     return { star, percent };
   });
 
+  const handleCheckPincode = async () => {
+    if (!/^\d{6}$/.test(pincode)) {
+      setPincodeError("Please enter a valid 6-digit pincode");
+      return;
+    }
+
+    try {
+      setCheckingPincode(true);
+      setPincodeError("");
+      setDeliveryInfo(null);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/webhooks/check-pincode?pincode=${pincode}`
+      );
+
+      const data = await res.json();
+
+      if (!data.serviceable) {
+        setPincodeError(data.message || "Delivery not available");
+        return;
+      }
+
+      setDeliveryInfo(data);
+    } catch (err) {
+      setPincodeError("Failed to check delivery. Please try again.");
+    } finally {
+      setCheckingPincode(false);
+    }
+  };
+
+  const handleRateProduct = () => {
+  if (!user) {
+    router.push("/login");
+    return;
+  }
+
+  router.push(`/rate-product/${product._id}`);
+};
+
+
+
 
   return (
     <div className="flex-1 max-w-lg">
@@ -85,12 +138,7 @@ export default function ProductInfo({ product }) {
           {totalRatings || 0} Reviews
         </span>
 
-        <button
-          onClick={() => setOpenReviews(true)}
-          className="text-blue-600 underline ml-2"
-        >
-          Write a Review
-        </button>
+
       </div>
 
       {/* -------- Product Title -------- */}
@@ -170,26 +218,54 @@ export default function ProductInfo({ product }) {
       <div className="mt-6">
         <h4 className="font-semibold mb-2 text-sm">Delivery Options</h4>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <input
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
             placeholder="Enter pincode"
+            maxLength={6}
             className="border px-3 py-2 rounded-lg text-sm w-40"
           />
-          <button className="bg-black text-white px-4 rounded-lg text-sm">
-            Check
+
+          <button
+            onClick={handleCheckPincode}
+            disabled={checkingPincode}
+            className="bg-black text-white px-4 py-2 rounded-lg text-sm disabled:opacity-60"
+          >
+            {checkingPincode ? "Checking..." : "Check"}
           </button>
         </div>
 
-        <p className="text-xs text-gray-500 mt-2">
-          Enter pincode to check delivery time & cash-on-delivery availability
-        </p>
 
-        <ul className="text-xs text-gray-600 mt-3 space-y-1">
-          <li>100% Original Products</li>
-          <li>Pay on delivery might be available</li>
-          <li>Easy 14 days returns and exchanges</li>
-          <li>Try & Buy might be available</li>
-        </ul>
+        {pincodeError && (
+          <p className="text-xs text-red-600 mt-2">{pincodeError}</p>
+        )}
+
+        {deliveryInfo && (
+          <div className="mt-3 text-xs text-gray-700 space-y-1">
+            <p>
+              🚚 Delivery in{" "}
+              <span className="font-semibold">
+                {deliveryInfo.estimatedDays} days
+              </span>
+            </p>
+
+            <p>
+              💳 Cash on Delivery:{" "}
+              <span className="font-semibold">
+                {deliveryInfo.codAvailable ? "Available" : "Not Available"}
+              </span>
+            </p>
+
+            <p>
+              📦 Courier Partner:{" "}
+              <span className="font-semibold">
+                {deliveryInfo.courierName}
+              </span>
+            </p>
+          </div>
+        )}
+
       </div>
 
       {/* ---------------- ACCORDIONS ---------------- */}
@@ -234,6 +310,13 @@ export default function ProductInfo({ product }) {
                   ? `${Math.floor(totalRatings / 1000)}k Verified Buyers`
                   : `${totalRatings} Verified Buyers`}
             </p>
+            <button
+              onClick={handleRateProduct}
+              className="ml-3 text-sm font-semibold text-blue-600"
+            >
+              Rate Product
+            </button>
+
           </div>
 
           {/* RIGHT: Bars */}
@@ -305,6 +388,7 @@ export default function ProductInfo({ product }) {
             ))}
           </div>
         )}
+
 
       </div>
     </div>

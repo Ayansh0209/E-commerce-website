@@ -159,4 +159,47 @@ if (!data.shipment_id) {
   return order;
 }
 
-module.exports = { getShiprocketToken,createShiprocketOrder };
+async function checkPinCode({
+  deliveryPincode,
+  cod = false,
+  weight = 0.5,
+}) {
+  const token = await getShiprocketToken();
+
+  const res = await fetch(
+    `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=${process.env.PICKUP_PINCODE}&delivery_postcode=${deliveryPincode}&weight=${weight}&cod=${cod ? 1 : 0}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Shiprocket serviceability check failed");
+  }
+
+  const data = await res.json();
+
+  const companies = data?.data?.available_courier_companies || [];
+
+  if (!companies.length) {
+    return {
+      serviceable: false,
+      message: "Delivery not available for this pincode",
+    };
+  }
+
+  const fastest = companies[0];
+
+  return {
+    serviceable: true,
+    codAvailable: fastest.cod === 1,
+    estimatedDays: fastest.estimated_delivery_days,
+    courierName: fastest.courier_name,
+  };
+}
+
+
+
+module.exports = { getShiprocketToken,createShiprocketOrder,checkPinCode };

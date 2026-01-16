@@ -83,6 +83,7 @@ async function findProductById(id) {
 
 async function getAllProducts(reqQuery) {
     let {
+        search,
         category,
         color,
         sizes,
@@ -103,6 +104,152 @@ async function getAllProducts(reqQuery) {
     pageSize = pageSize || 10;
 
     let query = Product.find().populate("category");
+   
+    if (search) {
+  const keywords = search
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean);
+
+  // Match categories by keyword
+  const matchedCategories = await Category.find({
+    name: { $regex: keywords.join("|"), $options: "i" }
+  }).select("_id");
+
+  query = query.where({
+    $or: [
+      { title: { $regex: keywords.join("|"), $options: "i" } },
+      { brand: { $regex: keywords.join("|"), $options: "i" } },
+      { description: { $regex: keywords.join("|"), $options: "i" } },
+      { category: { $in: matchedCategories.map(c => c._id) } }
+    ]
+  });
+}
+
+/*    if (search) {
+        const searchTerm = search.toLowerCase().trim();
+        const keywords = searchTerm.split(/\s+/).filter(Boolean);
+
+        // Match categories by keyword
+        const matchedCategories = await Category.find({
+            name: { $regex: keywords.join("|"), $options: "i" }
+        }).select("_id");
+
+        // Build search conditions with scoring
+        const searchConditions = [];
+
+        // Exact phrase match (highest priority)
+        searchConditions.push(
+            { title: { $regex: searchTerm, $options: "i" } },
+            { brand: { $regex: searchTerm, $options: "i" } },
+            { description: { $regex: searchTerm, $options: "i" } }
+        );
+
+        // All keywords must match (second priority)
+        if (keywords.length > 1) {
+            const allKeywordsRegex = keywords.map(kw => `(?=.*${kw})`).join('');
+            searchConditions.push(
+                { title: { $regex: allKeywordsRegex, $options: "i" } },
+                { brand: { $regex: allKeywordsRegex, $options: "i" } },
+                { description: { $regex: allKeywordsRegex, $options: "i" } }
+            );
+        }
+
+        // Any keyword matches (third priority)
+        const anyKeywordRegex = keywords.join("|");
+        searchConditions.push(
+            { title: { $regex: anyKeywordRegex, $options: "i" } },
+            { brand: { $regex: anyKeywordRegex, $options: "i" } },
+            { description: { $regex: anyKeywordRegex, $options: "i" } }
+        );
+
+        // Category match
+        if (matchedCategories.length > 0) {
+            searchConditions.push(
+                { category: { $in: matchedCategories.map(c => c._id) } }
+            );
+        }
+
+        query = query.where({ $or: searchConditions });
+
+        // Add relevance scoring via aggregation
+        const pipeline = [
+            {
+                $match: query.getQuery()
+            },
+            {
+                $addFields: {
+                    relevanceScore: {
+                        $sum: [
+                            // Exact phrase match in title (100 points)
+                            {
+                                $cond: [
+                                    { $regexMatch: { input: { $toLower: "$title" }, regex: searchTerm } },
+                                    100,
+                                    0
+                                ]
+                            },
+                            // All keywords in title (50 points)
+                            ...keywords.map(kw => ({
+                                $cond: [
+                                    { $regexMatch: { input: { $toLower: "$title" }, regex: kw } },
+                                    50 / keywords.length,
+                                    0
+                                ]
+                            })),
+                            // Exact phrase match in brand (30 points)
+                            {
+                                $cond: [
+                                    { $regexMatch: { input: { $toLower: "$brand" }, regex: searchTerm } },
+                                    30,
+                                    0
+                                ]
+                            },
+                            // Keywords in brand (15 points)
+                            ...keywords.map(kw => ({
+                                $cond: [
+                                    { $regexMatch: { input: { $toLower: "$brand" }, regex: kw } },
+                                    15 / keywords.length,
+                                    0
+                                ]
+                            })),
+                            // Keywords in description (5 points each)
+                            ...keywords.map(kw => ({
+                                $cond: [
+                                    { $regexMatch: { input: { $toLower: "$description" }, regex: kw } },
+                                    5,
+                                    0
+                                ]
+                            }))
+                        ]
+                    }
+                }
+            },
+            {
+                $sort: { relevanceScore: -1, createdAt: -1 }
+            }
+        ];
+
+        // Execute aggregation for search relevance
+        const productsWithScore = await Product.aggregate(pipeline);
+        const productIds = productsWithScore.map(p => p._id);
+
+        // Rebuild query with sorted IDs
+        query = Product.find({ _id: { $in: productIds } }).populate("category");
+
+        // Sort by the relevance order
+        const idOrder = productIds.reduce((acc, id, index) => {
+            acc[id.toString()] = index;
+            return acc;
+        }, {});
+
+        query = query.lean().then(products =>
+            products.sort((a, b) =>
+                idOrder[a._id.toString()] - idOrder[b._id.toString()]
+            )
+        );
+    }
+*/ 
 
     if (category) {
         const existCategory = await Category.findOne({ name: category });

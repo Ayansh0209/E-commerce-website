@@ -115,7 +115,7 @@ export default function OrdersPage() {
                 {/* Order Items */}
                 <div className="px-6 py-5">
                   <div className="flex gap-5">
-                    <div className="relative w-24 h-28 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+                    <div className="relative w-24 h-28 shrink-0 bg-gray-100 rounded overflow-hidden">
                       <img
                         src={firstItem.product.imageUrl}
                         className="w-full h-full object-cover"

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const reviewSchema = new Schema({
   review: {
     type: String,
-    required: true,
+    required: false,
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,

@@ -17,14 +17,14 @@ export default function ShopPage() {
   const dispatch = useDispatch();
   const params = useParams();
 
-const source = searchParams.get("source");
+  const source = searchParams.get("source");
 
-// const shouldShowCategoryFilter =
-//   !source &&                       // NOT from navbar/home
-//   !searchParams.get("isBestSeller") &&
-//   !searchParams.get("isNewArrival");
+  // const shouldShowCategoryFilter =
+  //   !source &&                       // NOT from navbar/home
+  //   !searchParams.get("isBestSeller") &&
+  //   !searchParams.get("isNewArrival");
 
-const shouldShowCategoryFilter = source !== "home";
+  const shouldShowCategoryFilter = source !== "home";
 
   const handleFilterChange = (section, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -71,12 +71,17 @@ const shouldShowCategoryFilter = source !== "home";
   const isNewArrival = searchParams.get("isNewArrival");
   const fitValue = searchParams.get("fit");
   const printValue = searchParams.get("print");
-
+  const categoryValue = searchParams.get("category");
+  const searchQuery = searchParams.get("query");
   useEffect(() => {
     const reqData = {};
 
+    const searchQuery = searchParams.get("query");
+    if (searchQuery) {
+      reqData.search = searchQuery;
+    }
     const categoryValue = searchParams.get("category");
-
+    
     if (categoryValue) {
       reqData.category = categoryValue;
     }
@@ -142,27 +147,73 @@ const shouldShowCategoryFilter = source !== "home";
   const selectedColors = searchParams.get("color")?.split(",") || [];
   const selectedPrice = searchParams.get("price") || "";
 
+
+  const pageSize = 15;
+  const start = (pageNumber - 1) * pageSize + 1;
+  const end = Math.min(
+    start + products?.content?.length - 1,
+    products?.totalPages * pageSize
+  );
+
   return (
     <div className="w-full min-h-screen bg-white">
 
       <div className="max-w-7xl mx-auto px-4 py-6 text-sm text-gray-600">
-        Home &gt; <span className="text-black font-medium">Sweatshirt</span>
+        Home
+        {categoryValue && (
+          <>
+            {" "} &gt;{" "}
+            <span className="text-black font-medium">
+              {categoryValue}
+            </span>
+          </>
+        )}
+        {searchQuery && (
+          <>
+            {" "} &gt;{" "}
+            <span className="text-black font-medium">
+              Search results for "{searchQuery}"
+            </span>
+          </>
+        )}
       </div>
+
 
       {/* Top Header: Product Count + Sorting */}
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center mb-6">
         <p className="text-gray-700">
-          Showing 1–10 products of <span className="font-semibold">100</span> products
+          Showing {start}-{end} products
         </p>
+
 
         <div className="flex gap-4 items-center text-sm">
           <span className="text-gray-500">Sort by:</span>
-          <button className="sort-btn active">Popularity</button>
-          <button className="sort-btn">What's New</button>
-          <button className="sort-btn">High to Low</button>
-          <button className="sort-btn">Low to High</button>
-          <button className="sort-btn">Customer Rating</button>
+
+          <button
+            className={`sort-btn ${sortValue === "price_high" ? "active" : ""}`}
+            onClick={() => handleRadioFilter("sort", "price_high")}
+          >
+            High to Low
+          </button>
+
+          <button
+            className={`sort-btn ${sortValue === "price_low" ? "active" : ""}`}
+            onClick={() => handleRadioFilter("sort", "price_low")}
+          >
+            Low to High
+          </button>
+
+          {/* Enable ONLY if backend supports rating */}
+          {/* 
+  <button
+    className={`sort-btn ${sortValue === "rating" ? "active" : ""}`}
+    onClick={() => handleRadioFilter("sort", "rating")}
+  >
+    Customer Rating
+  </button>
+  */}
         </div>
+
       </div>
 
       <div className="max-w-7xl mx-auto px-4 flex gap-10">
