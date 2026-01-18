@@ -4,18 +4,9 @@ import { useEffect, useState } from "react";
 import WishlistCard from "../components/whislist/WhishlistCard";
 import { auth } from "@/firebase/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
+import { getWishlistAPI } from "@/redux/wishlist/wishlistApi";
 
-const getAuthHeader = async () => {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Not authenticated");
 
-  const token = await user.getIdToken();
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-};
 
 export default function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -23,31 +14,18 @@ export default function Wishlist() {
   const [authReady, setAuthReady] = useState(false);
 
   const fetchWishlist = async () => {
-    try {
-      const headers = await getAuthHeader();
+  try {
+    const data = await getWishlistAPI();
+    setWishlist(data.wishlist || []);
+  } catch (error) {
+    console.error("Failed to fetch wishlist", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch wishlist");
-      }
-
-      const data = await res.json();
-      setWishlist(data.wishlist || []);
-    } catch (error) {
-      console.error("Failed to fetch wishlist", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ Wait for Firebase auth to be ready
+  //  Wait for Firebase auth to be ready
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {

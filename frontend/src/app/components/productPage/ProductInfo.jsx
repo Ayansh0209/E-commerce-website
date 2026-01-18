@@ -8,8 +8,10 @@ import { fetchRatings } from "@/redux/rating/ratingSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/context/AuthContext";
-import { createReviewAPI } from "@/redux/review/reviewApi";
-import { createRatingAPI } from "@/redux/rating/ratingApi";
+import {
+  addToWishlistAPI,
+  removeFromWishlistAPI,
+} from "@/redux/wishlist/wishlistApi";
 
 export default function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
@@ -21,7 +23,11 @@ export default function ProductInfo({ product }) {
   const [deliveryInfo, setDeliveryInfo] = useState(null);
   const [checkingPincode, setCheckingPincode] = useState(false);
   const [pincodeError, setPincodeError] = useState("");
-  
+  const [cartLoading, setCartLoading] = useState(false);
+  const [wishlisted, setWishlisted] = useState(product.isWishlisted || false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+
   const { user, loading } = useAuth();
 
 
@@ -51,6 +57,7 @@ export default function ProductInfo({ product }) {
       alert("Please select a size");
       return;
     }
+    if (cartLoading) return;
 
     // Prepare payload
     const payload = {
@@ -62,6 +69,7 @@ export default function ProductInfo({ product }) {
     console.log("ADD TO CART PAYLOAD:", payload);
 
     try {
+      setCartLoading(true);
       const result = await dispatch(addItemToCart(payload)).unwrap();
       console.log("CART UPDATED RESPONSE:", result);
       setAddedSize(selectedSize);
@@ -69,6 +77,9 @@ export default function ProductInfo({ product }) {
     } catch (error) {
       console.error("ADD TO CART FAILED:", error);
 
+    }
+    finally {
+      setCartLoading(false);
     }
   };
   useEffect(() => {
@@ -114,13 +125,37 @@ export default function ProductInfo({ product }) {
   };
 
   const handleRateProduct = () => {
-  if (!user) {
-    router.push("/login");
-    return;
-  }
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-  router.push(`/rate-product/${product._id}`);
-};
+    router.push(`/rate-product/${product._id}`);
+  };
+
+  useEffect(() => {
+    setWishlisted(product.isWishlisted || false);
+  }, [product.isWishlisted]);
+
+  const handleWishlistClick = async () => {
+    if (wishlistLoading) return;
+
+    try {
+      setWishlistLoading(true);
+
+      if (wishlisted) {
+        const res = await removeFromWishlistAPI(product._id);
+        setWishlisted(res.isWishlisted);
+      } else {
+        const res = await addToWishlistAPI(product._id);
+        setWishlisted(res.isWishlisted);
+      }
+    } catch (error) {
+      console.error("Wishlist action failed", error);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
 
 
@@ -200,17 +235,61 @@ export default function ProductInfo({ product }) {
       </div>
 
 
-      {/* -------- Add to Cart -------- */}
-      <button
-        onClick={
-          selectedSize && addedSize === selectedSize
-            ? () => router.push("/cart")
-            : handleAddToCart
-        }
-        className="mt-6 w-full bg-black text-white py-3 rounded-full"
-      >
-        {selectedSize && addedSize === selectedSize ? "Go to Bag" : "Add to Cart"}
-      </button>
+
+      {/* -------- Cart + Wishlist -------- */}
+      <div className="mt-6 flex gap-3 items-center">
+        {/* Add to Cart */}
+        <button
+          disabled={cartLoading}
+          onClick={
+            selectedSize && addedSize === selectedSize
+              ? () => router.push("/cart")
+              : handleAddToCart
+          }
+          className={`flex-1 py-3 rounded-full font-semibold transition
+      ${cartLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-black text-white hover:opacity-90"}
+    `}
+        >
+          {cartLoading
+            ? "Adding..."
+            : selectedSize && addedSize === selectedSize
+              ? "Go to Bag"
+              : "Add to Cart"}
+        </button>
+
+        {/* Wishlist */}
+        {/* Wishlist */}
+        <button
+  onClick={handleWishlistClick}
+  disabled={wishlistLoading}
+  className={`w-12 h-12 flex items-center justify-center rounded-xl border transition
+    ${wishlisted
+      ? "border-red-500 text-red-500"
+      : "border-gray-300 hover:border-black"}
+    ${wishlistLoading && "opacity-60 cursor-not-allowed"}
+  `}
+  aria-label="Add to wishlist"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+    width="20"
+    height="20"
+    fill={wishlisted ? "red" : "none"}
+    stroke="currentColor"
+    strokeWidth="6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M50 88L15 53c-9-9-9-24 0-33s24-9 33 0l2 2 2-2c9-9 24-9 33 0s9 24 0 33L50 88z" />
+  </svg>
+</button>
+
+
+
+      </div>
 
 
 
@@ -297,7 +376,7 @@ export default function ProductInfo({ product }) {
 
         <div className="flex gap-8 items-start">
           {/* LEFT: Average Rating */}
-          <div className="min-w-[120px]">
+          <div className="min-w-[120px] gap-1 flex flex-col items-center">
             <p className="text-4xl font-bold text-gray-900 leading-none">
               {averageRating}
               <span className="text-green-600 ml-1 text-2xl">★</span>
@@ -312,10 +391,13 @@ export default function ProductInfo({ product }) {
             </p>
             <button
               onClick={handleRateProduct}
-              className="ml-3 text-sm font-semibold text-blue-600"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold
+             hover:border-black hover:bg-gray-50 transition"
             >
+
               Rate Product
             </button>
+
 
           </div>
 

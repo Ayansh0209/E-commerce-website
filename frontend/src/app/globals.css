@@ -5,10 +5,17 @@
    background-color: #FAFAFA;
 
 }
-.scrollbar-none::-webkit-scrollbar {
+
+
+
+/* globals.css */
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-none {
-  -ms-overflow-style: none; 
+.scrollbar-hide {
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+/* globals.css */
+

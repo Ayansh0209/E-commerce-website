@@ -2,68 +2,33 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import SizeModal from "./SizeModal";
-import { auth } from "@/firebase/firebaseClient";
+import {
+  removeFromWishlistAPI,
+  moveWishlistToCartAPI,
+} from "@/redux/wishlist/wishlistApi";
+
 
 export default function WishlistCard({ product, onUpdate }) {
   const router = useRouter();
   const [showSizeModal, setShowSizeModal] = useState(false);
 
-
-const getAuthHeader = async () => {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Not authenticated");
-
-  const token = await user.getIdToken();
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-};
-  const removeFromWishlist = async () => {
-    const headers = await getAuthHeader();
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          productId: product._id
-        })
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error("Failed to remove from wishlist");
-    }
-
+const removeFromWishlist = async () => {
+  try {
+    await removeFromWishlistAPI(product._id);
     onUpdate();
-  };
-
-  const moveToBag = async (size) => {
-    const headers = await getAuthHeader();
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist/move-to-cart`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          productId: product._id,
-          size,
-          quantity: 1
-        })
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error("Failed to move item to cart");
-    }
-
+  } catch (error) {
+    console.error("Failed to remove from wishlist", error);
+  }
+};const moveToBag = async (size) => {
+  try {
+    await moveWishlistToCartAPI(product._id, size, 1);
     setShowSizeModal(false);
     onUpdate();
-  };
+  } catch (error) {
+    console.error("Failed to move item to cart", error);
+  }
+};
+
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-3 relative">

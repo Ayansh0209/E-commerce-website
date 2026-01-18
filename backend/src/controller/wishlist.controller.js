@@ -1,12 +1,34 @@
 const wishlistService = require("../services/wishlist.service");
 
 
-const toggleWishlist = async (req, res) => {
+const addToWishlist = async (req, res) => {
     const user = req.user;
     const { productId } = req.body;
 
     try {
-        const result = await wishlistService.toggleWishlist(
+        const result = await wishlistService.addToWishlist(
+            user._id,
+            productId
+        );
+
+        return res.status(200).send({
+            success: true,
+            ...result
+        });
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+const removeFromWishlist = async (req, res) => {
+    const user = req.user;
+    const { productId } = req.params;
+
+    try {
+        const result = await wishlistService.removeFromWishlist(
             user._id,
             productId
         );
@@ -68,7 +90,7 @@ const moveWishlistToCart = async (req, res) => {
 };
 
 module.exports = {
-    toggleWishlist,
+   addToWishlist,removeFromWishlist,
     getWishlist,
     moveWishlistToCart
 };

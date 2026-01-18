@@ -7,6 +7,7 @@ import ShopSidebar from "../components/productPage/ShopSiderbar";
 import Footer from "../components/Footer";
 import Category from "../components/home/Category";
 import { fetchProduct } from "@/redux/product/productSlice";
+import { useInView } from "react-intersection-observer";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -16,13 +17,16 @@ export default function ShopPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const params = useParams();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [allProducts, setAllProducts] = useState([]);
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
   const source = searchParams.get("source");
 
-  // const shouldShowCategoryFilter =
-  //   !source &&                       // NOT from navbar/home
-  //   !searchParams.get("isBestSeller") &&
-  //   !searchParams.get("isNewArrival");
+ 
 
   const shouldShowCategoryFilter = source !== "home";
 
@@ -65,7 +69,7 @@ export default function ShopPage() {
   const sizeValue = searchParams.get("size");
   const priceValue = searchParams.get("price");
   const sortValue = searchParams.get("sort");
-  const pageNumber = Number(searchParams.get("page") || 1);
+  //const pageNumber = Number(searchParams.get("page") || 1);
   const stock = searchParams.get("stock");
   const isBestSeller = searchParams.get("isBestSeller");
   const isNewArrival = searchParams.get("isNewArrival");
@@ -73,6 +77,19 @@ export default function ShopPage() {
   const printValue = searchParams.get("print");
   const categoryValue = searchParams.get("category");
   const searchQuery = searchParams.get("query");
+
+ useEffect(() => {
+  setPage(1);
+  setHasMore(true);
+  setAllProducts([]);
+}, [searchParams]);
+
+ useEffect(() => {
+  if (inView && hasMore && !loading && allProducts.length > 0) {
+    setPage((prev) => prev + 1);
+  }
+}, [inView, hasMore, loading]);
+
   useEffect(() => {
     const reqData = {};
 
@@ -81,7 +98,7 @@ export default function ShopPage() {
       reqData.search = searchQuery;
     }
     const categoryValue = searchParams.get("category");
-    
+
     if (categoryValue) {
       reqData.category = categoryValue;
     }
@@ -116,16 +133,19 @@ export default function ShopPage() {
     // sort
     reqData.sort = sortValue || "price_low";
 
-    // pagination (backend expects 1-based)
-    reqData.pageNumber = pageNumber;
-    reqData.pageSize = 15;
-
-    // stock
     if (stock) {
       reqData.stock = stock;
     }
+    // pagination (backend expects 1-based)
+    // reqData.pageNumber = pageNumber;
+    // reqData.pageSize = 15;
+
+    // dispatch(fetchProduct(reqData));
+    reqData.pageNumber = page;
+    reqData.pageSize = 15;
 
     dispatch(fetchProduct(reqData));
+
   }, [
     searchParams,
     colorValue,
@@ -134,12 +154,24 @@ export default function ShopPage() {
     printValue,
     priceValue,
     sortValue,
-    pageNumber,
+   page,
     stock,
     isBestSeller,
     isNewArrival,
     dispatch,
   ]);
+
+  useEffect(() => {
+  if (!products?.content) return;
+
+  setAllProducts((prev) =>
+    page === 1 ? products.content : [...prev, ...products.content]
+  );
+
+  if (page >= products.totalPages) {
+    setHasMore(false);
+  }
+}, [products]);
 
 
 
@@ -149,11 +181,13 @@ export default function ShopPage() {
 
 
   const pageSize = 15;
-  const start = (pageNumber - 1) * pageSize + 1;
-  const end = Math.min(
-    start + products?.content?.length - 1,
-    products?.totalPages * pageSize
-  );
+  // const start = (pageNumber - 1) * pageSize + 1;
+  // const end = Math.min(
+  //   start + products?.content?.length - 1,
+  //   products?.totalPages * pageSize
+  // );
+const start = allProducts.length > 0 ? 1 : 0;
+const end = allProducts.length;
 
   return (
     <div className="w-full min-h-screen bg-white">
@@ -234,17 +268,30 @@ export default function ShopPage() {
         />
 
         {/* -------------------- Product Grid -------------------- */}
-        <main className="flex-1">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-6">
-            {/* {products?.content?.map((p, index) => (
-              <ProductCard key={index} product={p} />
-            ))} */}
-            {products?.content?.map((p, index) => (
-              <ProductCard key={index} product={p} />
-            ))}
+       <main className="flex-1">
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-6">
+    {allProducts.map((p, index) => (
+      <ProductCard key={p._id || index} product={p} />
+    ))}
 
-          </div>
-        </main>
+    {/* 👇 Sentinel MUST be last grid item */}
+    {hasMore && (
+      <div ref={ref} className="col-span-full h-10" />
+    )}
+  </div>
+
+  {loading && (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="h-64 bg-gray-200 animate-pulse rounded" />
+      ))}
+    </div>
+  )}
+</main>
+
+        {/* <div ref={ref} className="h-10" /> */}
+
+
       </div>
       <Footer />
     </div>

@@ -1,7 +1,12 @@
 'use client'
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebaseClient";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import {
+  addToWishlistAPI,
+  removeFromWishlistAPI
+} from "@/redux/wishlist/wishlistApi";
+
 const getAuthHeader = async () => {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
@@ -22,36 +27,32 @@ export default function ProductCard({ product }) {
   );
   const [loading, setLoading] = useState(false);
 
-  const toggleWishlist = async (e) => {
-    e.stopPropagation(); //  prevent navigation
+const handleWishlist = async (e) => {
+  e.stopPropagation();
+  if (loading) return;
 
-    try {
-      setLoading(true);
-      const headers = await getAuthHeader();
+  try {
+    setLoading(true);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            productId: product._id,
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to toggle wishlist");
-      }
-
-      const data = await res.json();
+    if (wishlisted) {
+      const data = await removeFromWishlistAPI(product._id);
       setWishlisted(data.isWishlisted);
-    } catch (err) {
-      console.error("Wishlist toggle failed", err);
-    } finally {
-      setLoading(false);
+    } else {
+      const data = await addToWishlistAPI(product._id);
+      setWishlisted(data.isWishlisted);
     }
-  };
+  } catch (err) {
+    console.error("Wishlist failed", err);
+  } finally {
+    setLoading(false);
+  }
+};
+useEffect(() => {
+  setWishlisted(product.isWishlisted || false);
+}, [product.isWishlisted]);
+
+
+
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-transform hover:scale-[1.02]  cursor-pointer"
       onClick={() => router.push(`/productdetail/${product._id}`)}
@@ -65,7 +66,7 @@ export default function ProductCard({ product }) {
           className="w-full h-full object-cover "
         />
         <button
-          onClick={toggleWishlist}
+          onClick={handleWishlist}
           disabled={loading}
           className="absolute top-3 right-3 bg-white rounded-full p-2 shadow"
         >

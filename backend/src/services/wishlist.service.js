@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const { addCartItem } = require("./cart.service");
 
-async function toggleWishlist(userId, productId) {
+async function addToWishlist(userId, productId) {
     if (!productId) {
         throw new Error("Product ID is required");
     }
@@ -11,20 +11,38 @@ async function toggleWishlist(userId, productId) {
         throw new Error("User not found");
     }
 
-    const exists = user.wishlist.includes(productId);
+    const exists = user.wishlist.some(
+        (id) => id.toString() === productId
+    );
 
-    if (exists) {
-        user.wishlist = user.wishlist.filter(
-            (id) => id.toString() !== productId
-        );
-    } else {
+    if (!exists) {
         user.wishlist.push(productId);
+        await user.save();
     }
+
+    return {
+        isWishlisted: true,
+        wishlistCount: user.wishlist.length
+    };
+}
+async function removeFromWishlist(userId, productId) {
+    if (!productId) {
+        throw new Error("Product ID is required");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    user.wishlist = user.wishlist.filter(
+        (id) => id.toString() !== productId
+    );
 
     await user.save();
 
     return {
-        isWishlisted: !exists,
+        isWishlisted: false,
         wishlistCount: user.wishlist.length
     };
 }
@@ -72,7 +90,8 @@ async function moveWishlistToCart(userId, productId, size, quantity = 1) {
 }
 
 module.exports = {
-    toggleWishlist,
+    addToWishlist,
+    removeFromWishlist,
     getWishlist,
     moveWishlistToCart
 };
