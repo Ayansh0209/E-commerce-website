@@ -409,14 +409,14 @@ export default function OnTheFeed_FocusTunnel() {
           return (
             <div
               key={item.id}
-              className="transition-all duration-500 ease-out flex-shrink-0"
+              className="transition-all duration-500 ease-out shrink-0"
               style={{
                 transform: `scale(${1 - distance * 0.12})`,
                 opacity: distance > 2 ? 0.35 : 1 - distance * 0.25,
                 filter: distance === 0 ? "none" : "saturate(0.65)",
               }}
             >
-              <div className="w-[260px] md:w-[320px] aspect-[3/4] rounded-[28px] overflow-hidden shadow-2xl bg-black">
+              <div className="w-[260px] md:w-[320px] aspect-3/4 rounded-[28px] overflow-hidden shadow-2xl bg-black">
                 <video
                   src={item.src}
                   muted
