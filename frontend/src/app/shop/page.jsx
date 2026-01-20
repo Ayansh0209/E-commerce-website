@@ -1,11 +1,9 @@
 "use client";
-import { use, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import ProductCard from "../components/ProductCard/ProductCard";
-import mens_shirt from "../data/mens_shirt.json"
 import ShopSidebar from "../components/productPage/ShopSiderbar";
 import Footer from "../components/Footer";
-import Category from "../components/home/Category";
 import { fetchProduct } from "@/redux/product/productSlice";
 import { useInView } from "react-intersection-observer";
 

@@ -3,9 +3,9 @@ import HeroBanner from "./components/home/HeroBanner";
 import FeatureRow from "./components/home/FeatureRow";
 import Category from "./components/home/Category";
 import Bestseller from "./components/home/Bestseller";
-import mens_shirt from "../app/data/mens_shirt.json"
 import Footer from "./components/Footer";
 import OnTheFeed from "./components/home/OnTheFeed";
+import Description from "./components/home/Description";
 
 async function getProducts(query) {
   const params = new URLSearchParams(query).toString();
@@ -41,6 +41,7 @@ export default async  function Home() {
       <Bestseller sectionName="Bestseller" data={bestsellerProducts} link="/shop?isBestSeller=true"/>
       <Category />
       {/* <Bestseller sectionName="Hoodies & Sweatshirts" data={mens_shirt} /> */}
+      <Description/>
       <Bestseller sectionName="New Arrival" data={newArrivalProducts} link="/shop?isNewArrival=true"/>
       <OnTheFeed/>
       <Footer/>
