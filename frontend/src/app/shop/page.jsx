@@ -1,5 +1,5 @@
 "use client";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import ProductCard from "../components/ProductCard/ProductCard";
 import ShopSidebar from "../components/productPage/ShopSiderbar";
@@ -18,13 +18,15 @@ export default function ShopPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [allProducts, setAllProducts] = useState([]);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
   const { ref, inView } = useInView({
     threshold: 0,
   });
 
   const source = searchParams.get("source");
 
- 
+
 
   const shouldShowCategoryFilter = source !== "home";
 
@@ -76,17 +78,17 @@ export default function ShopPage() {
   const categoryValue = searchParams.get("category");
   const searchQuery = searchParams.get("query");
 
- useEffect(() => {
-  setPage(1);
-  setHasMore(true);
-  setAllProducts([]);
-}, [searchParams]);
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setAllProducts([]);
+  }, [searchParams]);
 
- useEffect(() => {
-  if (inView && hasMore && !loading && allProducts.length > 0) {
-    setPage((prev) => prev + 1);
-  }
-}, [inView, hasMore, loading]);
+  useEffect(() => {
+    if (inView && hasMore && !loading && allProducts.length > 0) {
+      setPage((prev) => prev + 1);
+    }
+  }, [inView, hasMore, loading]);
 
   useEffect(() => {
     const reqData = {};
@@ -152,7 +154,7 @@ export default function ShopPage() {
     printValue,
     priceValue,
     sortValue,
-   page,
+    page,
     stock,
     isBestSeller,
     isNewArrival,
@@ -160,16 +162,16 @@ export default function ShopPage() {
   ]);
 
   useEffect(() => {
-  if (!products?.content) return;
+    if (!products?.content) return;
 
-  setAllProducts((prev) =>
-    page === 1 ? products.content : [...prev, ...products.content]
-  );
+    setAllProducts((prev) =>
+      page === 1 ? products.content : [...prev, ...products.content]
+    );
 
-  if (page >= products.totalPages) {
-    setHasMore(false);
-  }
-}, [products]);
+    if (page >= products.totalPages) {
+      setHasMore(false);
+    }
+  }, [products]);
 
 
 
@@ -184,17 +186,18 @@ export default function ShopPage() {
   //   start + products?.content?.length - 1,
   //   products?.totalPages * pageSize
   // );
-const start = allProducts.length > 0 ? 1 : 0;
-const end = allProducts.length;
+  const start = allProducts.length > 0 ? 1 : 0;
+  const end = allProducts.length;
 
   return (
     <div className="w-full min-h-screen bg-white">
 
-      <div className="max-w-7xl mx-auto px-4 py-6 text-sm text-gray-600">
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-4 py-4 text-sm text-gray-600">
         Home
         {categoryValue && (
           <>
-            {" "} &gt;{" "}
+            {" "} &gt{" "}
             <span className="text-black font-medium">
               {categoryValue}
             </span>
@@ -202,7 +205,7 @@ const end = allProducts.length;
         )}
         {searchQuery && (
           <>
-            {" "} &gt;{" "}
+            {" "} &gt{" "}
             <span className="text-black font-medium">
               Search results for "{searchQuery}"
             </span>
@@ -210,90 +213,186 @@ const end = allProducts.length;
         )}
       </div>
 
+      {/* TOP BAR */}
+      <div className="max-w-7xl mx-auto px-4 mb-4">
 
-      {/* Top Header: Product Count + Sorting */}
-      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center mb-6">
-        <p className="text-gray-700">
-          Showing {start}-{end} products
-        </p>
-
-
-        <div className="flex gap-4 items-center text-sm">
-          <span className="text-gray-500">Sort by:</span>
-
+        {/* MOBILE + TABLET */}
+        <div className="flex justify-between items-center lg:hidden text-sm">
           <button
-            className={`sort-btn ${sortValue === "price_high" ? "active" : ""}`}
-            onClick={() => handleRadioFilter("sort", "price_high")}
+            onClick={() => setShowMobileFilters(true)}
+            className="
+    flex items-center gap-2
+    px-4 py-2
+    border border-gray-900
+    rounded-full
+    text-sm font-medium
+    text-gray-900
+    hover:bg-gray-900 hover:text-white
+    transition
+  "
           >
-            High to Low
+            Filters
           </button>
 
-          <button
-            className={`sort-btn ${sortValue === "price_low" ? "active" : ""}`}
-            onClick={() => handleRadioFilter("sort", "price_low")}
-          >
-            Low to High
-          </button>
 
-          {/* Enable ONLY if backend supports rating */}
-          {/* 
-  <button
-    className={`sort-btn ${sortValue === "rating" ? "active" : ""}`}
-    onClick={() => handleRadioFilter("sort", "rating")}
-  >
-    Customer Rating
-  </button>
-  */}
+          <p className="text-gray-600">
+            products {start}-{end}
+          </p>
         </div>
 
+        {/* DESKTOP */}
+        <div className="hidden lg:flex justify-between items-center">
+          <p className="text-gray-700">
+            Showing {start}-{end} products
+          </p>
+
+          <div className="flex gap-4 items-center text-sm">
+            <span className="text-gray-500">Sort by:</span>
+            <button
+              className={`sort-btn ${sortValue === "price_high" ? "active" : ""}`}
+              onClick={() => handleRadioFilter("sort", "price_high")}
+            >
+              High to Low
+            </button>
+            <button
+              className={`sort-btn ${sortValue === "price_low" ? "active" : ""}`}
+              onClick={() => handleRadioFilter("sort", "price_low")}
+            >
+              Low to High
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 flex gap-10">
-        <ShopSidebar
-          showCategoryFilter={shouldShowCategoryFilter}
-          selectedCategories={selectedCategories}
-          selectedColors={selectedColors}
-          selectedPrice={selectedPrice}
-          selectedSizes={searchParams.get("size")?.split(",") || []}
-          selectedFits={searchParams.get("fit")?.split(",") || []}
-          selectedPrints={searchParams.get("print")?.split(",") || []}
-          onCategoryChange={(value) => handleFilterChange("category", value)}
-          onColorChange={(value) => handleFilterChange("color", value)}
-          onSizeChange={(value) => handleFilterChange("size", value)}
-          onFitChange={(value) => handleFilterChange("fit", value)}
-          onPrintChange={(value) => handleFilterChange("print", value)}
-          onPriceChange={(value) => handleRadioFilter("price", value)}
-        />
-
-        {/* -------------------- Product Grid -------------------- */}
-       <main className="flex-1">
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-6">
-    {allProducts.map((p, index) => (
-      <ProductCard key={p._id || index} product={p} />
-    ))}
-
-    {/* 👇 Sentinel MUST be last grid item */}
-    {hasMore && (
-      <div ref={ref} className="col-span-full h-10" />
-    )}
-  </div>
-
-  {loading && (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-64 bg-gray-200 animate-pulse rounded" />
-      ))}
-    </div>
-  )}
-</main>
-
-        {/* <div ref={ref} className="h-10" /> */}
+      {/* MAIN CONTENT */}
+      <div className="max-w-7xl mx-auto px-2 flex gap-4 items-start min-h-screen">
 
 
+        {/* SIDEBAR — DESKTOP ONLY */}
+        <div className="hidden lg:block w-64 shrink-0 sticky top-24 h-fit  ">
+          <ShopSidebar
+            isMobile={false}
+            showCategoryFilter={shouldShowCategoryFilter}
+            selectedCategories={selectedCategories}
+            selectedColors={selectedColors}
+            selectedPrice={selectedPrice}
+            selectedSizes={searchParams.get("size")?.split(",") || []}
+            selectedFits={searchParams.get("fit")?.split(",") || []}
+            selectedPrints={searchParams.get("print")?.split(",") || []}
+            onCategoryChange={(value) => handleFilterChange("category", value)}
+            onColorChange={(value) => handleFilterChange("color", value)}
+            onSizeChange={(value) => handleFilterChange("size", value)}
+            onFitChange={(value) => handleFilterChange("fit", value)}
+            onPrintChange={(value) => handleFilterChange("print", value)}
+            onPriceChange={(value) => handleRadioFilter("price", value)}
+          />
+        </div>
+
+        {/* PRODUCTS */}
+        <main className="flex-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {allProducts.map((p) => (
+              <ProductCard key={p._id} product={p} />
+            ))}
+
+            {hasMore && (
+              <div ref={ref} className="col-span-full h-10" />
+            )}
+          </div>
+
+          {loading && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-64 bg-gray-200 animate-pulse rounded"
+                />
+              ))}
+            </div>
+          )}
+        </main>
       </div>
+
+      {/* MOBILE FILTER SIDEBAR */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowMobileFilters(false)}
+          />
+
+          {/* Sidebar */}
+          <div
+            className="
+        absolute left-0 top-0 h-full
+        w-[78%] sm:w-[70%] md:w-[60%] max-w-sm
+        bg-white shadow-xl
+        overflow-y-auto scrollbar-hide
+      "
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200">
+              <h3 className="font-semibold text-base">Filters</h3>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+                aria-label="Close filters"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* PRICE SORT */}
+            <div className="px-4 py-4 border-b border-gray-200">
+              <h4 className="font-semibold mb-3 text-left">Price</h4>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  className={`sort-btn text-left w-full ${sortValue === "price_low" ? "active" : ""
+                    }`}
+                  onClick={() => handleRadioFilter("sort", "price_low")}
+                >
+                  Low → High
+                </button>
+
+                <button
+                  className={`sort-btn text-left w-full ${sortValue === "price_high" ? "active" : ""
+                    }`}
+                  onClick={() => handleRadioFilter("sort", "price_high")}
+                >
+                  High → Low
+                </button>
+              </div>
+            </div>
+
+            {/* FILTERS */}
+            <div className="px-4 py-4">
+              <ShopSidebar
+                showCategoryFilter={shouldShowCategoryFilter}
+                selectedCategories={selectedCategories}
+                selectedColors={selectedColors}
+                selectedPrice={selectedPrice}
+                selectedSizes={searchParams.get("size")?.split(",") || []}
+                selectedFits={searchParams.get("fit")?.split(",") || []}
+                selectedPrints={searchParams.get("print")?.split(",") || []}
+                onCategoryChange={(value) => handleFilterChange("category", value)}
+                onColorChange={(value) => handleFilterChange("color", value)}
+                onSizeChange={(value) => handleFilterChange("size", value)}
+                onFitChange={(value) => handleFilterChange("fit", value)}
+                onPrintChange={(value) => handleFilterChange("print", value)}
+                onPriceChange={(value) => handleRadioFilter("price", value)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
+
+
 }
 
 /* ---- Sorting Button Style ---- */

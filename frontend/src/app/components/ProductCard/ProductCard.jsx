@@ -1,23 +1,10 @@
 'use client'
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebase/firebaseClient";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   addToWishlistAPI,
   removeFromWishlistAPI
 } from "@/redux/wishlist/wishlistApi";
-
-const getAuthHeader = async () => {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Not authenticated");
-
-  const token = await user.getIdToken();
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-};
 
 export default function ProductCard({ product }) {
 
@@ -27,44 +14,47 @@ export default function ProductCard({ product }) {
   );
   const [loading, setLoading] = useState(false);
 
-const handleWishlist = async (e) => {
-  e.stopPropagation();
-  if (loading) return;
+  const handleWishlist = async (e) => {
+    e.stopPropagation();
+    if (loading) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    if (wishlisted) {
-      const data = await removeFromWishlistAPI(product._id);
-      setWishlisted(data.isWishlisted);
-    } else {
-      const data = await addToWishlistAPI(product._id);
-      setWishlisted(data.isWishlisted);
+      if (wishlisted) {
+        const data = await removeFromWishlistAPI(product._id);
+        setWishlisted(data.isWishlisted);
+      } else {
+        const data = await addToWishlistAPI(product._id);
+        setWishlisted(data.isWishlisted);
+      }
+    } catch (err) {
+      console.error("Wishlist failed", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Wishlist failed", err);
-  } finally {
-    setLoading(false);
-  }
-};
-useEffect(() => {
-  setWishlisted(product.isWishlisted || false);
-}, [product.isWishlisted]);
+  };
+  useEffect(() => {
+    setWishlisted(product.isWishlisted || false);
+  }, [product.isWishlisted]);
 
 
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-transform hover:scale-[1.02]  cursor-pointer"
+    <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer"
       onClick={() => router.push(`/productdetail/${product._id}`)}
     >
-      {/* Image container */}
-      <div className="relative w-full h-[395px] bg-gray-100">
-        <img
 
+      {/* Image container */}
+      <div className="relative w-full aspect-3/4 bg-gray-100 overflow-hidden">
+        <img
           src={product.imageUrl}
           alt={product.brand}
-          className="w-full h-full object-cover "
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
         />
+
         <button
           onClick={handleWishlist}
           disabled={loading}
@@ -87,29 +77,35 @@ useEffect(() => {
           </svg>
         </button>
 
-        {product.discountPercent && (
-          <span className="absolute top-3 left-3 bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {product.discountPercent}% OFF
-          </span>
-        )}
+
       </div>
 
       {/* Product Info */}
-      <div className="px-4 py-3 flex flex-col items-start">
-        <h3 className="text-base font-medium text-gray-800 truncate">
+      <div className="px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-start">
+        <h5 className="text-xs text-gray-600 line-clamp-1">
+
           {product.brand}
-        </h3>
+        </h5>
         <h5 className="text-xs text-gray-600 line-clamp-1">{product.title}</h5>
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-lg font-semibold text-black">
+        <div className="flex items-center gap-2 mt-2 whitespace-nowrap overflow-hidden">
+          <span className="text-base sm:text-lg font-semibold text-black shrink-0">
             ₹{product.discountedPrice}
           </span>
+
           {product.price && (
-            <span className="text-sm text-gray-500 line-through">
+            <span className="text-xs sm:text-sm text-gray-500 line-through shrink-0">
               ₹{product.price}
             </span>
           )}
+
+          {product.discountPercent && (
+            <span className="text-xs font-semibold text-green-600 shrink-0">
+              ({product.discountPercent}% OFF)
+            </span>
+          )}
         </div>
+
+
       </div>
     </div>
   );

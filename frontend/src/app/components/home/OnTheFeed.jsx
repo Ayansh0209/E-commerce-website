@@ -431,9 +431,9 @@ export default function OnTheFeed_FocusTunnel() {
         })}
       </div>
 
-      <p className="text-center text-sm text-gray-500 mt-8">
+      {/* <p className="text-center text-sm text-gray-500 mt-8">
         Swipe horizontally to explore
-      </p>
+      </p> */}
     </section>
   );
 }

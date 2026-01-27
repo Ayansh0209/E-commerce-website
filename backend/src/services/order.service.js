@@ -2,6 +2,7 @@ const cartService = require("../services/cart.service.js");
 const Address = require("../models/address.model.js");
 const Order = require("../models/order.model.js");
 const OrderItems = require("../models/orderitems.js");
+const AddressService = require("../services/address.service.js");
 async function createOrder(user, addressId) {
 
 
@@ -9,11 +10,11 @@ async function createOrder(user, addressId) {
         _id: addressId,
         user: user._id
     });
-
-
+    
     if (!address) {
         throw new Error("Shipping address not found");
     }
+    await AddressService.setDefaultAddress(user._id, addressId);
 
 
     const cart = await cartService.findUserCart(user._id);

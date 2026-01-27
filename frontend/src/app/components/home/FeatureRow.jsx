@@ -1,24 +1,50 @@
 import { Truck, ShieldCheck, RotateCcw, Wallet } from "lucide-react";
+import React from "react";
 
 const features = [
-  { icon: <Truck size={40} />, title: "Quick Delivery" },
-  { icon: <ShieldCheck size={40} />, title: "Best Quality" },
-  { icon: <RotateCcw size={40} />, title: "Return Guarantee" },
-  { icon: <Wallet size={40} />, title: "Cash On Delivery" },
+  { icon: Truck, title: "Quick Delivery" },
+  { icon: ShieldCheck, title: "Best Quality" },
+  { icon: RotateCcw, title: "Return Guarantee" },
+  { icon: Wallet, title: "Cash On Delivery" },
 ];
 
 export default function FeatureRow() {
   return (
-    <div className="w-full flex flex-wrap justify-center items-center gap-20 py-6 ">
-      {features.map((f, idx) => (
-        <div
-          key={idx}
-          className="flex justify-center items-center h-18 w-70 gap-3 px-4 py-2 rounded-xl shadow-sm bg-white hover:bg-gray-100 transition"
-        >
-          <span className="text-gray-700">{f.icon}</span>
-          <span className="font-semibold text-xl  sm:text-xl">{f.title}</span>
-        </div>
-      ))}
+    <div className="w-full px-4 pt-9">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        {features.map((f, idx) => {
+          const Icon = f.icon;
+          return (
+            <div
+              key={idx}
+              className="
+                flex items-center justify-center gap-2
+                px-3 py-3
+                rounded-xl bg-white shadow-sm
+                text-gray-800
+              "
+            >
+              {/* Icon */}
+              <Icon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+
+              {/* Text */}
+              <span
+                className="
+                  text-[15px]
+                  sm:text-base
+                  md:text-sm
+                  font-semibold
+                  leading-tight
+                  text-center
+                  whitespace-nowrap
+                "
+              >
+                {f.title}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

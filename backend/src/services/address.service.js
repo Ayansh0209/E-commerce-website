@@ -6,7 +6,8 @@ const User = require("../models/user.model");
 async function addAddress(userId, addressData) {
   const address = new Address({
     ...addressData,
-    user: userId
+    user: userId,
+   isDefault: existingCount === 0,
   });
 
   const savedAddress = await address.save();
@@ -19,8 +20,11 @@ async function addAddress(userId, addressData) {
 }
 
 async function getUserAddresses(userId) {
-  return await Address.find({ user: userId }).lean();
+  return await Address.find({ user: userId })
+    .sort({ isDefault: -1, updatedAt: -1 })
+    .lean();
 }
+
 
 async function deleteAddress(addressId, userId) {
   await Address.findOneAndDelete({
@@ -43,9 +47,25 @@ async function updateAddress(addressId, userId, updateData) {
   return updatedAddress;
 }
 
+async function setDefaultAddress(userId, addressId) {
+  // remove default from all
+  await Address.updateMany(
+    { user: userId },
+    { $set: { isDefault: false } }
+  );
+
+  // set new default
+  await Address.findOneAndUpdate(
+    { _id: addressId, user: userId },
+    { isDefault: true }
+  );
+}
+
+
 module.exports = {
   addAddress,
   getUserAddresses,
   deleteAddress,
-  updateAddress
+  updateAddress,
+  setDefaultAddress
 };

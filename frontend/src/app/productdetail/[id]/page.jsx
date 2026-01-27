@@ -80,52 +80,86 @@ const fbt =
 
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+  <div>
+    <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
 
-        {/* ---------------- MAIN SECTION ---------------- */}
-        <div className="flex flex-col lg:flex-row gap-20">
-          <div className="lg:sticky lg:top-24 h-fit">
-            <ProductGallery images={product.images} />
-          </div>
-          <ProductInfo product={product} />
+      {/* ---------------- MAIN SECTION ---------------- */}
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-20">
+        
+        {/* PRODUCT GALLERY */}
+        <div className="lg:sticky lg:top-24 h-fit">
+          <ProductGallery images={product.images} />
         </div>
 
-
-        {/* ---------------- Frequently Bought Together ---------------- */}
-        <h2 className="text-2xl font-bold mt-16 mb-4">
-          Frequently Bought Together
-        </h2>
-
-        {fbt.length === 0 ? (
-          <p className="text-gray-500">No suggestions available</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {fbt.map((item) => (
-              <ProductCard key={item._id} product={item} />
-            ))}
-          </div>
-        )}
-
-
-
-        {/* ---------------- Similar Products ---------------- */}
-        <h2 className="text-2xl font-bold mt-16 mb-4">
-          Similar Products
-        </h2>
-
-        {similarProducts.length === 0 ? (
-          <p className="text-gray-500">No similar products</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {similarProducts.map((item) => (
-              <ProductCard key={item._id} product={item} />
-            ))}
-          </div>
-        )}
-
+        {/* PRODUCT INFO */}
+        <ProductInfo product={product} />
       </div>
-        <Footer />
+
+      {/* ---------------- Frequently Bought Together ---------------- */}
+    {/* ---------------- Frequently Bought Together ---------------- */}
+<h2 className="text-xl sm:text-2xl font-bold mt-14 mb-4">
+  Frequently Bought Together
+</h2>
+
+{fbt.length === 0 ? (
+  <p className="text-gray-500">No suggestions available</p>
+) : (
+  <>
+    {/* MOBILE / TABLET — horizontal scroll */}
+    <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-3">
+        {fbt.map((item) => (
+          <div key={item._id} className="min-w-[46%] max-w-[46%]">
+            <ProductCard product={item} />
+          </div>
+        ))}
+      </div>
     </div>
-  );
+
+    {/* DESKTOP — grid */}
+    <div className="hidden lg:grid grid-cols-4 gap-6">
+      {fbt.map((item) => (
+        <ProductCard key={item._id} product={item} />
+      ))}
+    </div>
+  </>
+)}
+
+
+      {/* ---------------- Similar Products ---------------- */}
+      {/* ---------------- Similar Products ---------------- */}
+<h2 className="text-xl sm:text-2xl font-bold mt-14 mb-4">
+  Similar Products
+</h2>
+
+{similarProducts.length === 0 ? (
+  <p className="text-gray-500">No similar products</p>
+) : (
+  <>
+    {/* MOBILE / TABLET — horizontal scroll */}
+    <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-3">
+        {similarProducts.map((item) => (
+          <div key={item._id} className="min-w-[46%] max-w-[46%]">
+            <ProductCard product={item} />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* DESKTOP — grid */}
+    <div className="hidden lg:grid grid-cols-4 gap-6">
+      {similarProducts.map((item) => (
+        <ProductCard key={item._id} product={item} />
+      ))}
+    </div>
+  </>
+)}
+
+
+    </div>
+
+    <Footer />
+  </div>
+);
 }

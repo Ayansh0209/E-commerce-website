@@ -21,17 +21,14 @@ export default function ShopSidebar({
   const [openCategory, setOpenCategory] = useState(true);
   const [openPrice, setOpenPrice] = useState(true);
   const [openColor, setOpenColor] = useState(true);
+  const [openSize, setOpenSize] = useState(true);
+  const [openFit, setOpenFit] = useState(true);
+  const [openPrint, setOpenPrint] = useState(true);
 
-  const categories = [
-    "T-Shirts",
-    "Gym Wear",
-    "Trousers",
-    "Polos",
-  ];
-
+  const categories = ["T-Shirts", "Gym Wear", "Trousers", "Polos"];
 
   return (
-    <aside className="w-64 pr-6 sticky top-24 self-start max-h-[100vh] overflow-y-auto">
+    <aside className="pr-6  ">
       <h3 className="text-lg font-semibold mb-4">Filters</h3>
 
       {/* ---------------- CATEGORY ---------------- */}
@@ -62,7 +59,7 @@ export default function ShopSidebar({
         </div>
       )}
 
-      {/* ---------------- PRICE (RADIO) ---------------- */}
+      {/* ---------------- PRICE ---------------- */}
       <div className="mb-6">
         <button
           onClick={() => setOpenPrice(!openPrice)}
@@ -125,7 +122,7 @@ export default function ShopSidebar({
               { name: "Blue", color: "bg-blue-500" },
               { name: "Red", color: "bg-red-500" },
               { name: "Black", color: "bg-black" },
-              { name: "White", color: "bg-white" },
+              { name: "White", color: "bg-white border" },
             ].map((c) => (
               <label key={c.name} className="flex items-center gap-3">
                 <input
@@ -140,57 +137,84 @@ export default function ShopSidebar({
           </div>
         )}
       </div>
+
       {/* ---------------- SIZE ---------------- */}
       <div className="mb-6">
-        <h4 className="font-semibold mb-2">Size</h4>
-        <div className="space-y-2 text-sm">
-          {["S", "M", "L", "XL"].map((size) => (
-            <label key={size} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={selectedSizes.includes(size)}
-                onChange={() => onSizeChange(size)}
-              />
-              {size}
-            </label>
-          ))}
-        </div>
+        <button
+          onClick={() => setOpenSize(!openSize)}
+          className="w-full flex justify-between items-center"
+        >
+          <h4 className="font-semibold">Size</h4>
+          {openSize ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+
+        {openSize && (
+          <div className="mt-3 space-y-2 text-sm">
+            {["S", "M", "L", "XL"].map((size) => (
+              <label key={size} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedSizes.includes(size)}
+                  onChange={() => onSizeChange(size)}
+                />
+                {size}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
+
       {/* ---------------- FIT ---------------- */}
       <div className="mb-6">
-        <h4 className="font-semibold mb-2">Fit</h4>
-        <div className="space-y-2 text-sm">
-          {["oversized", "regular", "drop-shoulder"].map((fit) => (
-            <label key={fit} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={selectedFits.includes(fit)}
-                onChange={() => onFitChange(fit)}
-              />
-              {fit.replace("-", " ")}
-            </label>
-          ))}
-        </div>
+        <button
+          onClick={() => setOpenFit(!openFit)}
+          className="w-full flex justify-between items-center"
+        >
+          <h4 className="font-semibold">Fit</h4>
+          {openFit ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+
+        {openFit && (
+          <div className="mt-3 space-y-2 text-sm">
+            {["oversized", "regular", "drop-shoulder"].map((fit) => (
+              <label key={fit} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFits.includes(fit)}
+                  onChange={() => onFitChange(fit)}
+                />
+                {fit.replace("-", " ")}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
+
       {/* ---------------- PRINT ---------------- */}
       <div className="mb-6">
-        <h4 className="font-semibold mb-2">Print</h4>
-        <div className="space-y-2 text-sm">
-          {["solid", "graphic", "waffle"].map((print) => (
-            <label key={print} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={selectedPrints.includes(print)}
-                onChange={() => onPrintChange(print)}
-              />
-              {print}
-            </label>
-          ))}
-        </div>
+        <button
+          onClick={() => setOpenPrint(!openPrint)}
+          className="w-full flex justify-between items-center"
+        >
+          <h4 className="font-semibold">Print</h4>
+          {openPrint ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+
+        {openPrint && (
+          <div className="mt-3 space-y-2 text-sm">
+            {["solid", "graphic", "waffle"].map((print) => (
+              <label key={print} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedPrints.includes(print)}
+                  onChange={() => onPrintChange(print)}
+                />
+                {print}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
-
-
-
     </aside>
   );
 }

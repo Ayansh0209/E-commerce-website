@@ -11,11 +11,16 @@ const getAuthHeader = async () => {
   };
 };
 
-export const getWishlistAPI = async () => {
+export const getWishlistAPI = async (page = 1, limit = 12) => {
+  console.log(
+    "API CALL:",
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist?page=${page}&limit=${limit}`
+  );
+
   const headers = await getAuthHeader();
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/wishlist?page=${page}&limit=${limit}`,
     {
       method: "GET",
       headers,

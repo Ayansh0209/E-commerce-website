@@ -47,22 +47,26 @@ const removeFromWishlist = async (req, res) => {
 
 
 const getWishlist = async (req, res) => {
-    const user = req.user;
+  try {
+    const userId = req.user._id;
 
-    try {
-        const wishlist = await wishlistService.getWishlist(user._id);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 12;
 
-        return res.status(200).send({
-            success: true,
-            wishlist
-        });
-    } catch (error) {
-        return res.status(500).send({
-            success: false,
-            error: error.message
-        });
-    }
+    const data = await wishlistService.getWishlist(
+      userId,
+      page,
+      limit
+    );
+
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
 };
+
 
 
 const moveWishlistToCart = async (req, res) => {

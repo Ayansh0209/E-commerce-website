@@ -1,68 +1,111 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AliceCarousel from 'react-alice-carousel'
 import 'react-alice-carousel/lib/alice-carousel.css'
 import ProductCard from '../ProductCard/ProductCard'
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
 
+const responsive = {
+  0: { items: 2 },
+  640: { items: 2 },
+  768: { items: 3 },
+  1024: { items: 4 },
+  1280: { items: 5 },
+}
+
 const Bestseller = ({ data, sectionName }) => {
   const [activeIndex, setActiveIndex] = useState(0)
-  const responsive = {
-    0: { items: 1 },
-    568: { items: 2 },
-    1024: { items:5 },
-  }
+  const [visibleItems, setVisibleItems] = useState(2)
+  const carouselRef = React.useRef(null)
 
-const items = data.slice(0,15).map((item)=>(<div key={item} className="px-2"><ProductCard product={item}/>
-</div> 
-))
+  //  dynamically calculate visible items
+  useEffect(() => {
+    const updateItems = () => {
+      const width = window.innerWidth
+      if (width >= 1280) setVisibleItems(5)
+      else if (width >= 1024) setVisibleItems(4)
+      else if (width >= 768) setVisibleItems(3)
+      else setVisibleItems(2)
+    }
+    updateItems()
+    window.addEventListener('resize', updateItems)
+    return () => window.removeEventListener('resize', updateItems)
+  }, [])
 
+  const items = data.slice(0, 15).map((item) => (
+    <div
+      key={item._id}
+      className="
+    px-1.5      /* phones */
+    sm:px-1.5   /* small tablets */
+    md:px-1.5   /* tablets */
+    lg:px-1.5   /* laptops */
+  "
+    >
+      <ProductCard product={item} />
+    </div>
 
-  const prev=()=>setActiveIndex(activeIndex - 1)
-  const next=()=>setActiveIndex(activeIndex + 1)
+  ))
 
- 
   return (
-    <div className='relative px-2 lg:px-5 py-6'>
-      <h2 className='text-3xl font-bold mb-5 pb-3 pt-2 text-center'>
+    <section className="relative px-0.5 lg:px-3 pt-8">
+      <h2 className="text-2xl md:text-3xl font-bold mb-9 text-center">
         {sectionName}
       </h2>
 
-      {/* Carousel Wrapper */}
-      <div className='relative'>
+      <div className="relative">
         <AliceCarousel
-        key={activeIndex}
+          ref={carouselRef}
+          mouseTracking
           items={items}
-          disableButtonsControls
           responsive={responsive}
           disableDotsControls
-          activeIndex={activeIndex}
+          disableButtonsControls
+          //activeIndex={activeIndex}
           onSlideChanged={(e) => setActiveIndex(e.item)}
         />
 
-        {/* Left Arrow */}
         {/* LEFT ARROW */}
         {activeIndex > 0 && (
           <button
-            onClick={prev}
-            className='absolute top-1/2 left-5 -translate-y-1/2 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition'
+            onClick={(e) => {
+              e.stopPropagation()
+              carouselRef.current?.slidePrev()
+            }}
+            className="
+      hidden sm:flex
+      absolute top-1/2 left-3 -translate-y-1/2
+      z-30 pointer-events-auto
+      bg-white rounded-full shadow-md
+      p-2 hover:bg-gray-100 transition
+    "
           >
-            <KeyboardArrowLeftIcon className='text-black text-3xl' />
+            <KeyboardArrowLeftIcon className="text-black" />
           </button>
         )}
 
+
         {/* RIGHT ARROW */}
-        {activeIndex < items.length - 5 && (
+        {activeIndex < items.length - visibleItems && (
           <button
-            onClick={next}
-            className='absolute top-1/2 right-5 -translate-y-1/2 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition'
+            onClick={(e) => {
+              e.stopPropagation()
+              carouselRef.current?.slideNext()
+            }}
+            className="
+      hidden sm:flex
+      absolute top-1/2 right-3 -translate-y-1/2
+      z-30 pointer-events-auto
+      bg-white rounded-full shadow-md
+      p-2 hover:bg-gray-100 transition
+    "
           >
-            <KeyboardArrowLeftIcon className='text-black text-3xl rotate-180' />
+            <KeyboardArrowLeftIcon className="text-black rotate-180" />
           </button>
         )}
 
       </div>
-    </div>
+    </section>
   )
 }
 

@@ -49,8 +49,9 @@ const addressSlice = createSlice({
     clearAddresses(state) {
       state.addresses = [];
       state.error = null;
-    }
+    },
   },
+  
   extraReducers: (builder) => {
     builder
 
@@ -91,5 +92,5 @@ const addressSlice = createSlice({
   }
 });
 
-export const { clearAddresses } = addressSlice.actions;
+export const { clearAddresses, setSelectedAddress } = addressSlice.actions;
 export default addressSlice.reducer;
