@@ -24,7 +24,7 @@ export default function OrderDetailsPage() {
                 <div className="animate-pulse space-y-6">
                     <div className="h-8 bg-gray-200 rounded-lg w-48 mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded w-64 mb-8"></div>
-
+                    
                     {[1, 2, 3].map((i) => (
                         <div key={i} className="bg-white border border-gray-200 rounded-xl p-6">
                             <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -47,40 +47,6 @@ export default function OrderDetailsPage() {
         };
         return statusColors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
     };
-  const baseTimeline = [
-  { key: 'PLACED', label: 'Order Placed' },
-  { key: 'SHIPPED', label: 'Shipped' },
-  { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
-  { key: 'DELIVERED', label: 'Delivered' },
-];
-const normalizeStatus = (status) => {
-  if (['CONFIRMED', 'PACKED'].includes(status)) return 'PLACED';
-  return status;
-};
-
-const uiStatus = normalizeStatus(order.orderStatus);
-
-
-    const currentIndex = baseTimeline.findIndex(
-  step => step.key === uiStatus
-);
-
-    // fallback ETA (important)
-    const estimatedDelivery = (() => {
-  // 1️⃣ Shiprocket ETA (best)
-  if (order.shipment?.estimatedDelivery) {
-    return new Date(order.shipment.estimatedDelivery);
-  }
-
-  // 2️⃣ Saved at order creation
-  if (order.estimatedDelivery) {
-    return new Date(order.estimatedDelivery);
-  }
-
-  // 3️⃣ Fallback (smart default)
-  const baseDays = order.shippingAddress?.state === 'Jharkhand' ? 3 : 5;
-  return new Date(Date.now() + baseDays * 24 * 60 * 60 * 1000);
-})();
 
     const isDelivered = order.orderStatus === 'DELIVERED';
     const hasMultipleItems = order.orderItems.length > 1;
@@ -89,9 +55,9 @@ const uiStatus = normalizeStatus(order.orderStatus);
     return (
         <div className="w-full space-y-6">
             {/* Header */}
-            <div
-                onClick={() => router.push(`/productdetail/${firstItem.product._id}`)}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div 
+             onClick={() => router.push(`/productdetail/${firstItem.product._id}`)}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                         Order #{order._id.slice(-8)}
@@ -156,97 +122,88 @@ const uiStatus = normalizeStatus(order.orderStatus);
             </div>
 
             {/* Delivery Timeline */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sm:p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+            {order.shipment?.estimatedDelivery && (
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sm:p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                                {isDelivered ? 'Delivered' : 'Expected Delivery'}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600">
+                                {new Date(order.shipment.estimatedDelivery).toLocaleDateString('en-GB', {
+                                    weekday: 'short',
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="font-semibold text-gray-900">
-                            {isDelivered ? 'Delivered' : 'Expected Delivery'}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                            {new Date(estimatedDelivery).toLocaleDateString('en-GB', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                            })}
-                        </p>
-                    </div>
-                </div>
 
-                {/* BASE TIMELINE (Myntra style) */}
-                {!order.shipment?.awb && (
-                    <div className="space-y-5">
-                        {baseTimeline.map((step, index) => {
-                            const isCompleted = index <= currentIndex;
-                            const isActive = index === currentIndex;
-
-                            return (
-                                <div key={step.key} className="flex items-start gap-4">
-                                    <div
-                                        className={`w-4 h-4 rounded-full mt-1 ${isCompleted ? 'bg-green-500' : 'bg-gray-300'
-                                            }`}
-                                    />
+                    {/* Tracking Events */}
+                    {order.shipment?.events && order.shipment.events.length > 0 ? (
+                        <div className="relative pl-6 sm:pl-8 mt-6">
+                            <div className="absolute left-2 sm:left-3 top-0 bottom-0 w-0.5 bg-gray-200" />
+                            {order.shipment.events.slice().reverse().map((event, index) => (
+                                <div key={index} className="relative mb-6 last:mb-0">
+                                    <div className="absolute -left-[7px] sm:-left-[9px] top-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-500 border-2 border-white" />
                                     <div>
-                                        <p className={`text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-500'
-                                            }`}>
-                                            {step.label}
+                                        <p className="font-medium text-xs sm:text-sm text-gray-900">
+                                            {event.message || event.status}
                                         </p>
-                                        {isActive && (
-                                            <p className="text-xs text-gray-500 mt-0.5">
-                                                In progress
-                                            </p>
+                                        {event.location && (
+                                            <p className="text-xs sm:text-sm text-gray-600 mt-0.5">{event.location}</p>
                                         )}
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {new Date(event.time).toLocaleString('en-GB', {
+                                                day: 'numeric',
+                                                month: 'short',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </div>
-                )}
-
-                {/* REAL SHIPMENT EVENTS (after AWB) */}
-                {order.shipment?.events?.length > 0 && (
-                    <div className="relative pl-6 mt-6">
-                        <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-200" />
-                        {order.shipment.events.slice().reverse().map((event, idx) => (
-                            <div key={idx} className="relative mb-6">
-                                <div className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
-                                <p className="text-sm font-medium text-gray-900">
-                                    {event.message || event.status}
-                                </p>
-                                {event.location && (
-                                    <p className="text-sm text-gray-600">{event.location}</p>
-                                )}
-                                <p className="text-xs text-gray-500">
-                                    {new Date(event.time).toLocaleString('en-GB')}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* TRACKING LINK */}
-                {order.shipment?.awb && (
-                    <div className="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center">
-                        <div className="text-sm">
-                            <p>Courier: <span className="font-medium">{order.shipment.courier}</span></p>
-                            <p>AWB: <span className="font-medium">{order.shipment.awb}</span></p>
+                            ))}
                         </div>
-                        <a
-                            href={`https://shiprocket.co/tracking/${order.shipment.awb}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50"
-                        >
-                            Track Package
-                        </a>
-                    </div>
-                )}
-            </div>
+                    ) : (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mt-4">
+                            <p className="text-xs sm:text-sm text-blue-800">
+                                Tracking will be available once your order is shipped.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Tracking Link */}
+                    {order.shipment?.awb && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div className="text-sm">
+                                    <p className="text-gray-600">Courier: <span className="font-medium text-gray-900">{order.shipment.courier}</span></p>
+                                    <p className="text-gray-600 mt-1">AWB: <span className="font-medium text-gray-900">{order.shipment.awb}</span></p>
+                                </div>
+                                <a
+                                    href={`https://shiprocket.co/tracking/${order.shipment.awb}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                                >
+                                    Track Package
+                                    <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Rate Order - Only if Delivered */}
             {isDelivered && (

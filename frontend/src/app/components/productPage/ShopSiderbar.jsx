@@ -28,7 +28,7 @@ export default function ShopSidebar({
   const categories = ["T-Shirts", "Gym Wear", "Trousers", "Polos"];
 
   return (
-    <aside className="pr-6  ">
+    <aside className="pr-6 pb-10   ">
       <h3 className="text-lg font-semibold mb-4">Filters</h3>
 
       {/* ---------------- CATEGORY ---------------- */}

@@ -269,23 +269,26 @@ export default function ShopPage() {
 
 
         {/* SIDEBAR — DESKTOP ONLY */}
-        <div className="hidden lg:block w-64 shrink-0 sticky top-24 h-fit  ">
-          <ShopSidebar
-            isMobile={false}
-            showCategoryFilter={shouldShowCategoryFilter}
-            selectedCategories={selectedCategories}
-            selectedColors={selectedColors}
-            selectedPrice={selectedPrice}
-            selectedSizes={searchParams.get("size")?.split(",") || []}
-            selectedFits={searchParams.get("fit")?.split(",") || []}
-            selectedPrints={searchParams.get("print")?.split(",") || []}
-            onCategoryChange={(value) => handleFilterChange("category", value)}
-            onColorChange={(value) => handleFilterChange("color", value)}
-            onSizeChange={(value) => handleFilterChange("size", value)}
-            onFitChange={(value) => handleFilterChange("fit", value)}
-            onPrintChange={(value) => handleFilterChange("print", value)}
-            onPriceChange={(value) => handleRadioFilter("price", value)}
-          />
+        <div className="hidden lg:block w-64 shrink-0 sticky top-24">
+          <div className="max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
+
+            <ShopSidebar
+              isMobile={false}
+              showCategoryFilter={shouldShowCategoryFilter}
+              selectedCategories={selectedCategories}
+              selectedColors={selectedColors}
+              selectedPrice={selectedPrice}
+              selectedSizes={searchParams.get("size")?.split(",") || []}
+              selectedFits={searchParams.get("fit")?.split(",") || []}
+              selectedPrints={searchParams.get("print")?.split(",") || []}
+              onCategoryChange={(value) => handleFilterChange("category", value)}
+              onColorChange={(value) => handleFilterChange("color", value)}
+              onSizeChange={(value) => handleFilterChange("size", value)}
+              onFitChange={(value) => handleFilterChange("fit", value)}
+              onPrintChange={(value) => handleFilterChange("print", value)}
+              onPriceChange={(value) => handleRadioFilter("price", value)}
+            />
+          </div>
         </div>
 
         {/* PRODUCTS */}

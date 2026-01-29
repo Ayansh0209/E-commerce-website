@@ -8,6 +8,8 @@ import { fetchRatings } from "@/redux/rating/ratingSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/context/AuthContext";
+import SizeModal from "@/app/components/whislist/SizeModal";
+
 import {
   addToWishlistAPI,
   removeFromWishlistAPI,
@@ -26,7 +28,7 @@ export default function ProductInfo({ product }) {
   const [cartLoading, setCartLoading] = useState(false);
   const [wishlisted, setWishlisted] = useState(product.isWishlisted || false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
-
+  const [showSizeModal, setShowSizeModal] = useState(false);
 
   const { requireAuth } = useAuth();
 
@@ -50,14 +52,19 @@ export default function ProductInfo({ product }) {
       dispatch(fetchReviews(product._id));
     }
   }, [product?._id, dispatch]);
+  const handleSizeSelectFromModal = (size) => {
+    setSelectedSize(size);
+    setShowSizeModal(false);
+  };
 
 
   const handleAddToCart = async () => {
     //  Size validation
     if (!selectedSize) {
-      alert("Please select a size");
+      setShowSizeModal(true);
       return;
     }
+
     if (cartLoading) return;
 
     // Prepare payload
@@ -125,38 +132,38 @@ export default function ProductInfo({ product }) {
     }
   };
 
- const handleRateProduct = () => {
-  requireAuth(() => {
-    router.push(`/rate-product/${product._id}`);
-  });
-};
+  const handleRateProduct = () => {
+    requireAuth(() => {
+      router.push(`/rate-product/${product._id}`);
+    });
+  };
 
 
   useEffect(() => {
     setWishlisted(product.isWishlisted || false);
   }, [product.isWishlisted]);
 
- const handleWishlistClick = () => {
-  if (wishlistLoading) return;
+  const handleWishlistClick = () => {
+    if (wishlistLoading) return;
 
-  requireAuth(async () => {
-    try {
-      setWishlistLoading(true);
+    requireAuth(async () => {
+      try {
+        setWishlistLoading(true);
 
-      if (wishlisted) {
-        const res = await removeFromWishlistAPI(product._id);
-        setWishlisted(res.isWishlisted);
-      } else {
-        const res = await addToWishlistAPI(product._id);
-        setWishlisted(res.isWishlisted);
+        if (wishlisted) {
+          const res = await removeFromWishlistAPI(product._id);
+          setWishlisted(res.isWishlisted);
+        } else {
+          const res = await addToWishlistAPI(product._id);
+          setWishlisted(res.isWishlisted);
+        }
+      } catch (error) {
+        console.error("Wishlist action failed", error);
+      } finally {
+        setWishlistLoading(false);
       }
-    } catch (error) {
-      console.error("Wishlist action failed", error);
-    } finally {
-      setWishlistLoading(false);
-    }
-  });
-};
+    });
+  };
 
 
 
@@ -264,30 +271,30 @@ export default function ProductInfo({ product }) {
         {/* Wishlist */}
         {/* Wishlist */}
         <button
-  onClick={handleWishlistClick}
-  disabled={wishlistLoading}
-  className={`w-12 h-12 flex items-center justify-center rounded-xl border transition
+          onClick={handleWishlistClick}
+          disabled={wishlistLoading}
+          className={`w-12 h-12 flex items-center justify-center rounded-xl border transition
     ${wishlisted
-      ? "border-red-500 text-red-500"
-      : "border-gray-300 hover:border-black"}
+              ? "border-red-500 text-red-500"
+              : "border-gray-300 hover:border-black"}
     ${wishlistLoading && "opacity-60 cursor-not-allowed"}
   `}
-  aria-label="Add to wishlist"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-    width="20"
-    height="20"
-    fill={wishlisted ? "red" : "none"}
-    stroke="currentColor"
-    strokeWidth="6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M50 88L15 53c-9-9-9-24 0-33s24-9 33 0l2 2 2-2c9-9 24-9 33 0s9 24 0 33L50 88z" />
-  </svg>
-</button>
+          aria-label="Add to wishlist"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 100 100"
+            width="20"
+            height="20"
+            fill={wishlisted ? "red" : "none"}
+            stroke="currentColor"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M50 88L15 53c-9-9-9-24 0-33s24-9 33 0l2 2 2-2c9-9 24-9 33 0s9 24 0 33L50 88z" />
+          </svg>
+        </button>
 
 
 
@@ -475,6 +482,14 @@ export default function ProductInfo({ product }) {
 
 
       </div>
+      {showSizeModal && (
+        <SizeModal
+          sizes={product.sizes}
+          onSelect={handleSizeSelectFromModal}
+          onClose={() => setShowSizeModal(false)}
+        />
+      )}
+
     </div>
   );
 }

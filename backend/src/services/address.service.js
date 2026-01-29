@@ -4,6 +4,8 @@ const User = require("../models/user.model");
 
 
 async function addAddress(userId, addressData) {
+  const existingCount = await Address.countDocuments({ user: userId });
+  
   const address = new Address({
     ...addressData,
     user: userId,
