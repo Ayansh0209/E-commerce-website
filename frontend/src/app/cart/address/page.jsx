@@ -170,7 +170,7 @@ export default function AddressPage() {
             })
           );
 
-          router.push("/orders");
+          router.push("/account/orders");
         },
 
         modal: {

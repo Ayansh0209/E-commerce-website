@@ -28,7 +28,8 @@ export default function ProductInfo({ product }) {
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
 
-  const { user, loading } = useAuth();
+  const { requireAuth } = useAuth();
+
 
 
   const router = useRouter();
@@ -124,22 +125,21 @@ export default function ProductInfo({ product }) {
     }
   };
 
-  const handleRateProduct = () => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
+ const handleRateProduct = () => {
+  requireAuth(() => {
     router.push(`/rate-product/${product._id}`);
-  };
+  });
+};
+
 
   useEffect(() => {
     setWishlisted(product.isWishlisted || false);
   }, [product.isWishlisted]);
 
-  const handleWishlistClick = async () => {
-    if (wishlistLoading) return;
+ const handleWishlistClick = () => {
+  if (wishlistLoading) return;
 
+  requireAuth(async () => {
     try {
       setWishlistLoading(true);
 
@@ -155,7 +155,9 @@ export default function ProductInfo({ product }) {
     } finally {
       setWishlistLoading(false);
     }
-  };
+  });
+};
+
 
 
 

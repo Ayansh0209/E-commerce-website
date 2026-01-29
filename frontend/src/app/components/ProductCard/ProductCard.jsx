@@ -1,6 +1,8 @@
 'use client'
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 import {
   addToWishlistAPI,
   removeFromWishlistAPI
@@ -12,12 +14,15 @@ export default function ProductCard({ product }) {
   const [wishlisted, setWishlisted] = useState(
     product.isWishlisted || false
   );
+  const { requireAuth } = useAuth();
+
   const [loading, setLoading] = useState(false);
 
-  const handleWishlist = async (e) => {
-    e.stopPropagation();
-    if (loading) return;
+  const handleWishlist = (e) => {
+  e.stopPropagation();
+  if (loading) return;
 
+  requireAuth(async () => {
     try {
       setLoading(true);
 
@@ -33,7 +38,9 @@ export default function ProductCard({ product }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
+};
+
   useEffect(() => {
     setWishlisted(product.isWishlisted || false);
   }, [product.isWishlisted]);

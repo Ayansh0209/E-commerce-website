@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import WishlistCard from "../components/whislist/WhishlistCard";
-import { auth } from "@/firebase/firebaseClient";
-import { onAuthStateChanged } from "firebase/auth";
+// import { auth } from "@/firebase/firebaseClient";
+// import { onAuthStateChanged } from "firebase/auth";
 import { getWishlistAPI } from "@/redux/wishlist/wishlistApi";
+import { useAuth } from "@/context/AuthContext";
 
 const PAGE_SIZE = 12;
 
@@ -14,7 +15,8 @@ export default function Wishlist() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
+const { user, loading: authLoading, openAuthModal } = useAuth();
+
   const [totalCount, setTotalCount] = useState(0);
 
   const observerRef = useRef(null);
@@ -56,7 +58,7 @@ export default function Wishlist() {
   // ================= AUTO PREFETCH =================
   useEffect(() => {
     if (
-      authReady &&
+    
       hasMore &&
       !loading &&
       !loadingMore &&
@@ -66,21 +68,31 @@ export default function Wishlist() {
       console.log("AUTO PREFETCH NEXT PAGE");
       fetchWishlist(page + 1);
     }
-  }, [wishlist, authReady, hasMore, loading, loadingMore, page, fetchWishlist]);
+  }, [wishlist,  hasMore, loading, loadingMore, page, fetchWishlist]);
 
   // ================= AUTH =================
+  // useEffect(() => {
+  //   const unsub = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       setAuthReady(true);
+  //       fetchWishlist(1);
+  //     } else {
+  //       setLoading(false);
+  //       setAuthReady(false);
+  //     }
+  //   });
+  //   return () => unsub();
+  // }, [fetchWishlist]);
+
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAuthReady(true);
-        fetchWishlist(1);
-      } else {
-        setLoading(false);
-        setAuthReady(false);
-      }
-    });
-    return () => unsub();
-  }, [fetchWishlist]);
+  if (!authLoading && !user) {
+    openAuthModal();
+  }
+
+  if (!authLoading && user) {
+    fetchWishlist(1);
+  }
+}, [user, authLoading, openAuthModal, fetchWishlist]);
 
   // ================= INTERSECTION OBSERVER =================
   useEffect(() => {
@@ -126,14 +138,15 @@ export default function Wishlist() {
       </div>
     );
   }
+if (authLoading || !user) return null;
 
-  if (!authReady) {
-    return (
-      <div className="flex justify-center items-center h-[60vh] text-gray-600">
-        Please login to view your wishlist ❤️
-      </div>
-    );
-  }
+  // if (!authReady) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[60vh] text-gray-600">
+  //       Please login to view your wishlist ❤️
+  //     </div>
+  //   );
+  // }
 
   if (wishlist.length === 0) {
     return (

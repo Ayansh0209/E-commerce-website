@@ -3,11 +3,13 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrderById } from "@/redux/order/orderSlice";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function OrderDetailsPage() {
     const { id } = useParams();
     const dispatch = useDispatch();
+    const router = useRouter();
+
     const { order, loading } = useSelector(state => state.order);
 
     useEffect(() => {
@@ -53,7 +55,9 @@ export default function OrderDetailsPage() {
     return (
         <div className="w-full space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div 
+             onClick={() => router.push(`/productdetail/${firstItem.product._id}`)}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                         Order #{order._id.slice(-8)}
@@ -74,7 +78,7 @@ export default function OrderDetailsPage() {
             {/* Order Items Preview - Top Section */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                 <div className="p-5 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-6">
+                    <div className="flex items-center justify-between gap-4 mb-6">
                         <div>
                             <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date</p>
                             <p className="font-semibold text-gray-900">
@@ -93,7 +97,7 @@ export default function OrderDetailsPage() {
 
                     {/* First Item Display */}
                     <div className="flex gap-4 sm:gap-5 items-start">
-                        <div className="w-20 h-24 sm:w-24 sm:h-32 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                        <div className="w-20 h-24 sm:w-24 sm:h-32 md:w-28 md:h-36 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                             <img
                                 src={firstItem.product.imageUrl}
                                 className="w-full h-full object-cover"

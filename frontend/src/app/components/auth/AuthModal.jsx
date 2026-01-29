@@ -75,7 +75,9 @@ export default function AuthModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+    onClick={(e)=>e.stopPropagation}
+    >
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
         {/* Left side with promotion banner */}
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-8 text-center">
