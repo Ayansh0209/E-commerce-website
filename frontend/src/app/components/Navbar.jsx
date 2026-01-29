@@ -119,7 +119,7 @@ const Navbar = () => {
           </form>
           {/* Mobile Search Icon */}
           <button
-            className="flex lg:hidden"
+            className="flex lg:hidden "
             onClick={() => setOpenSearch(true)}
           >
 
@@ -128,64 +128,25 @@ const Navbar = () => {
 
 
           {/* User */}
+          {/* User (desktop only) */}
           {mounted && !loading && (
-            <>
-              {!user ? (
-                <button onClick={() => setOpenAuth(true)}>
-                  <img src="/icons/Usericon.svg" width="24" />
-                </button>
-              ) : (
-                <div className="relative">
-                  <img
-                    onClick={() => setOpenMenu(!openMenu)}
-                    src={
-                      user.photoURL ||
-                      (profile?.firstName
-                        ? `https://ui-avatars.com/api/?name=${profile.firstName}`
-                        : "/icons/Usericon.svg")
-                    }
-                    className="w-7 h-7 rounded-full cursor-pointer object-cover"
-                    alt="User Avatar"
-                  />
-
-
-                  {openMenu && (
-                    <div className="absolute right-0 mt-2 bg-white shadow-lg rounded w-48">
-                      <div className="px-4 py-2 text-sm text-gray-600">
-                        {profileLoading ? "Loading..." : profile?.email}
-                      </div>
-
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 hover:bg-gray-100"
-                        onClick={() => setOpenMenu(false)}
-                      >
-                        My Profile
-                      </Link>
-                      {/* !profile?.address?.length */}
-                      {!profileLoading && !profile?.address?.length && (
-                        <Link
-                          href="/profile/address"
-                          className="block px-4 py-2 text-yellow-600 hover:bg-gray-100"
-                          onClick={() => setOpenMenu(false)}
-                        >
-                          Add Address
-                        </Link>
-                      )}
-
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-
-                </div>
-              )}
-            </>
+            <div className="hidden md:block">
+              <button
+                onClick={() => {
+                  if (!user) {
+                    setOpenAuth(true);
+                  } else {
+                    router.push("/account");
+                  }
+                }}
+                className="flex items-center cursor-pointer"
+              >
+                <img src="/icons/Usericon.svg" width="24" alt="Account" />
+              </button>
+            </div>
           )}
+
+
 
           <Link href="/wishlist">
             <img src="/icons/Whishlit.svg" width="24" />
@@ -198,37 +159,52 @@ const Navbar = () => {
       </div>
       {openSidebar && (
         <div className="fixed inset-0 z-50 bg-black/40">
-          <div className="bg-white w-72 h-full p-6">
+          <div className="bg-white w-72 h-screen p-6 flex flex-col">
+            {/* Close button */}
             <button
-              className="mb-6"
+              className="mb-6 self-start"
               onClick={() => setOpenSidebar(false)}
             >
               ✕
             </button>
 
-            <div className="flex flex-col gap-4">
-              <Link href="/" onClick={() => setOpenSidebar(false)}>Home</Link>
-              <Link href="/shop" onClick={() => setOpenSidebar(false)}>Shop</Link>
-              <Link href="/about" onClick={() => setOpenSidebar(false)}>About Us</Link>
-              <Link href="/contact" onClick={() => setOpenSidebar(false)}>Contact</Link>
+            {/* Content wrapper */}
+            <div className="flex flex-col flex-1">
+              {/* Top Links */}
+              <div className="flex flex-col gap-4">
+                <Link href="/" onClick={() => setOpenSidebar(false)}>Home</Link>
+                <Link href="/shop" onClick={() => setOpenSidebar(false)}>Shop</Link>
+                <Link href="/about" onClick={() => setOpenSidebar(false)}>About Us</Link>
+                <Link href="/contact" onClick={() => setOpenSidebar(false)}>Contact</Link>
+              </div>
 
-              {!user && (
+              {/* Bottom Account Action */}
+              <div className="mt-auto pt-6 border-t">
                 <button
                   onClick={() => {
-                    setOpenAuth(true);
+                    if (!user) {
+                      setOpenAuth(true);
+                    } else {
+                      router.push("/account");
+                    }
                     setOpenSidebar(false);
                   }}
-                  className="mt-4 bg-black text-white py-2 rounded"
+                  className={`w-full py-3 rounded-lg font-medium ${user
+                      ? "border border-gray-300 text-black"
+                      : "bg-black text-white"
+                    }`}
                 >
-                  Sign In / Sign Up
+                  {user ? "My Account" : "Sign In / Sign Up"}
                 </button>
-              )}
+
+              </div>
             </div>
           </div>
+
         </div>
       )}
       {openSearch && (
-        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b px-4 py-3 md:hidden">
+        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b px-4 py-3 md:hidden ">
           <form
             onSubmit={(e) => {
               handleSearch(e);
