@@ -62,14 +62,44 @@ async function createProduct(reqData) {
 }
 
 async function deleteProduct(productId) {
-    const product = await findProductById(productId);
+    const deleted = await Product.findByIdAndDelete(productId);
 
-    await Product.findByIdAndDelete(productId);
-    return "Product deleted Successfully";
+    if (!deleted) {
+        throw new Error("Product not found");
+    }
+
+    return "Product deleted successfully";
 }
 
+
 async function updateProduct(productId, reqData) {
-    return await Product.findByIdAndUpdate(productId, reqData);
+  const allowedUpdates = {
+    title: reqData.title,
+    description: reqData.description,
+    brand: reqData.brand,
+    imageUrl: reqData.imageUrl,
+    color: reqData.color,
+    price: reqData.price,
+    discountedPrice: reqData.discountedPrice,
+    discountPercent: reqData.discountPercent,
+    sizes: reqData.sizes,
+    fit: reqData.fit,
+    print: reqData.print,
+    isBestSeller: reqData.isBestSeller,
+    isNewArrival: reqData.isNewArrival,
+    quantity: reqData.quantity,
+  };
+
+  // remove undefined fields
+  Object.keys(allowedUpdates).forEach(
+    (key) => allowedUpdates[key] === undefined && delete allowedUpdates[key]
+  );
+
+  return await Product.findByIdAndUpdate(
+    productId,
+    allowedUpdates,
+    { new: true }
+  );
 }
 
 async function findProductById(id) {

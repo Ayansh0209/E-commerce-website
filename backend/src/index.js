@@ -21,13 +21,15 @@ const paymentRouter = require("./routes/payment.routes.js")
 const addressRoutes = require("./routes/address.routes.js");
 const tracking =  require("./routes/shiprocket.routes")
 const wishlist = require("./routes/wishlist.route.js")
+const adminDashboardRoutes = require("./routes/adminDashboard.routes.js");
 //app.use("/auth",authRouters)
+app.use("/api/admin/orders",adminOrderRouters)
+app.use("/api/admin/products",adminProductRouters)
+app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/users",userRouters)
 app.use("/api/products",productRouters)
-app.use("/api/admin/products",adminProductRouters)
 app.use("/api/cart",cartRouters)
 app.use("/api/cart_items",cartItemRouters)
-app.use("/api/admin/orders",adminOrderRouters)
 app.use("/api/orders",orderRouters)
 app.use("/api/reviews",reviewRouters)
 app.use("/api/ratings",ratingRouters)

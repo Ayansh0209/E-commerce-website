@@ -114,9 +114,16 @@ async function userOrderHistory(userId) {
 }
 
 async function getAllOrders() {
-    return await Order.find().populate({ path: "orderItems", populate: { path: "product" } }).lean()
-
+  return await Order.find()
+    .populate("user")
+    .populate("shippingAddress")
+    .populate({
+      path: "orderItems",
+      populate: { path: "product" }
+    })
+    .lean();
 }
+
 
 async function deleteOrder(orderId) {
     const order = await findOrderById(orderId);

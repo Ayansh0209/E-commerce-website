@@ -353,90 +353,90 @@
 //     </section>
 //   );
 // }
-'use client';
+// 'use client';
 
-import { useEffect, useRef, useState } from "react";
+// import { useEffect, useRef, useState } from "react";
 
-export default function OnTheFeed_FocusTunnel() {
-  const baseFeed = [
-    "ForBiggerJoyrides",
-    "ForBiggerEscapes",
-    "ForBiggerFun",
-    "ForBiggerBlazes",
-    "BigBuckBunny",
-  ];
+// export default function OnTheFeed_FocusTunnel() {
+//   const baseFeed = [
+//     "ForBiggerJoyrides",
+//     "ForBiggerEscapes",
+//     "ForBiggerFun",
+//     "ForBiggerBlazes",
+//     "BigBuckBunny",
+//   ];
 
-  const feed = [...baseFeed, ...baseFeed].map((v, i) => ({
-    id: i,
-    src: `https://storage.googleapis.com/gtv-videos-bucket/sample/${v}.mp4`,
-  }));
+//   const feed = [...baseFeed, ...baseFeed].map((v, i) => ({
+//     id: i,
+//     src: `https://storage.googleapis.com/gtv-videos-bucket/sample/${v}.mp4`,
+//   }));
 
-  const containerRef = useRef(null);
-  const [active, setActive] = useState(4);
+//   const containerRef = useRef(null);
+//   const [active, setActive] = useState(4);
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+//   useEffect(() => {
+//     const el = containerRef.current;
+//     if (!el) return;
 
-    const CARD_WIDTH = 320 + 32; // card + gap
+//     const CARD_WIDTH = 320 + 32; // card + gap
 
-    const onScroll = () => {
-      const index = Math.round(el.scrollLeft / CARD_WIDTH);
-      setActive(Math.min(Math.max(index, 0), feed.length - 1));
-    };
+//     const onScroll = () => {
+//       const index = Math.round(el.scrollLeft / CARD_WIDTH);
+//       setActive(Math.min(Math.max(index, 0), feed.length - 1));
+//     };
 
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [feed.length]);
+//     el.addEventListener("scroll", onScroll, { passive: true });
+//     return () => el.removeEventListener("scroll", onScroll);
+//   }, [feed.length]);
 
-  return (
-    <section className="py-20 bg-[#fafafa] overflow-hidden">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold">ON THE FEED</h2>
-        <p className="text-gray-600 mt-2">
-          See what our community is wearing
-        </p>
-      </div>
+//   return (
+//     <section className="py-20 bg-[#fafafa] overflow-hidden">
+//       <div className="text-center mb-12">
+//         <h2 className="text-4xl md:text-5xl font-bold">ON THE FEED</h2>
+//         <p className="text-gray-600 mt-2">
+//           See what our community is wearing
+//         </p>
+//       </div>
 
-      <div
-        ref={containerRef}
-        className="flex gap-8 px-16 overflow-x-auto scrollbar-hide"
-        style={{ perspective: "1200px" }}
-      >
-        {feed.map((item, i) => {
-          const distance = Math.abs(i - active);
+//       <div
+//         ref={containerRef}
+//         className="flex gap-8 px-16 overflow-x-auto scrollbar-hide"
+//         style={{ perspective: "1200px" }}
+//       >
+//         {feed.map((item, i) => {
+//           const distance = Math.abs(i - active);
 
-          return (
-            <div
-              key={item.id}
-              className="transition-all duration-500 ease-out shrink-0"
-              style={{
-                transform: `scale(${1 - distance * 0.12})`,
-                opacity: distance > 2 ? 0.35 : 1 - distance * 0.25,
-                filter: distance === 0 ? "none" : "saturate(0.65)",
-              }}
-            >
-              <div className="w-[260px] md:w-[320px] aspect-3/4 rounded-[28px] overflow-hidden shadow-2xl bg-black">
-                <video
-                  src={item.src}
-                  muted
-                  loop
-                  playsInline
-                  autoPlay={i === active}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+//           return (
+//             <div
+//               key={item.id}
+//               className="transition-all duration-500 ease-out shrink-0"
+//               style={{
+//                 transform: `scale(${1 - distance * 0.12})`,
+//                 opacity: distance > 2 ? 0.35 : 1 - distance * 0.25,
+//                 filter: distance === 0 ? "none" : "saturate(0.65)",
+//               }}
+//             >
+//               <div className="w-[260px] md:w-[320px] aspect-3/4 rounded-[28px] overflow-hidden shadow-2xl bg-black">
+//                 <video
+//                   src={item.src}
+//                   muted
+//                   loop
+//                   playsInline
+//                   autoPlay={i === active}
+//                   className="w-full h-full object-cover"
+//                 />
+//               </div>
+//             </div>
+//           );
+//         })}
+//       </div>
 
-      {/* <p className="text-center text-sm text-gray-500 mt-8">
-        Swipe horizontally to explore
-      </p> */}
-    </section>
-  );
-}
+//       {/* <p className="text-center text-sm text-gray-500 mt-8">
+//         Swipe horizontally to explore
+//       </p> */}
+//     </section>
+//   );
+// }
 
 
 // 'use client';
@@ -540,120 +540,120 @@ export default function OnTheFeed_FocusTunnel() {
 
 
 
-// 'use client';
+'use client';
 
-// import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-// export default function OnTheFeed_BrokenGrid() {
-//   const baseFeed = [
-//     "ForBiggerJoyrides",
-//     "ForBiggerEscapes",
-//     "ForBiggerFun",
-//     "ForBiggerBlazes",
-//     "BigBuckBunny",
-//   ];
+export default function OnTheFeed_BrokenGrid() {
+  const baseFeed = [
+    "ForBiggerJoyrides",
+    "ForBiggerEscapes",
+    "ForBiggerFun",
+    "ForBiggerBlazes",
+    "BigBuckBunny",
+  ];
 
-//   // duplicate for infinite illusion
-//   const feed = [...baseFeed, ...baseFeed, ...baseFeed].map((v, i) => ({
-//     id: i,
-//     src: `https://storage.googleapis.com/gtv-videos-bucket/sample/${v}.mp4`,
-//   }));
+  // duplicate for infinite illusion
+  const feed = [...baseFeed, ...baseFeed, ...baseFeed].map((v, i) => ({
+    id: i,
+    src: `https://storage.googleapis.com/gtv-videos-bucket/sample/${v}.mp4`,
+  }));
 
-//   const containerRef = useRef(null);
-//   const [active, setActive] = useState(0);
+  const containerRef = useRef(null);
+  const [active, setActive] = useState(0);
 
-//   // 🔥 horizontal-center detection
-//   useEffect(() => {
-//     const container = containerRef.current;
-//     if (!container) return;
+  // 🔥 horizontal-center detection
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-//     const cards = Array.from(container.children);
+    const cards = Array.from(container.children);
 
-//     const onScroll = () => {
-//       const center =
-//         container.scrollLeft + container.offsetWidth / 2;
+    const onScroll = () => {
+      const center =
+        container.scrollLeft + container.offsetWidth / 2;
 
-//       let closestIndex = 0;
-//       let minDistance = Infinity;
+      let closestIndex = 0;
+      let minDistance = Infinity;
 
-//       cards.forEach((card, i) => {
-//         const cardCenter =
-//           card.offsetLeft + card.offsetWidth / 2;
-//         const distance = Math.abs(center - cardCenter);
+      cards.forEach((card, i) => {
+        const cardCenter =
+          card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(center - cardCenter);
 
-//         if (distance < minDistance) {
-//           minDistance = distance;
-//           closestIndex = i;
-//         }
-//       });
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = i;
+        }
+      });
 
-//       setActive(closestIndex);
-//     };
+      setActive(closestIndex);
+    };
 
-//     container.addEventListener("scroll", onScroll, { passive: true });
+    container.addEventListener("scroll", onScroll, { passive: true });
 
-//     // start from middle set (infinite illusion)
-//     container.scrollLeft = container.scrollWidth / 3;
+    // start from middle set (infinite illusion)
+    container.scrollLeft = container.scrollWidth / 3;
 
-//     return () => container.removeEventListener("scroll", onScroll);
-//   }, []);
+    return () => container.removeEventListener("scroll", onScroll);
+  }, []);
 
-//   return (
-//     <section className="py-20 bg-[#fafafa] overflow-hidden">
-//       <div className="text-center mb-12">
-//         <h2 className="text-4xl md:text-5xl font-bold">
-//           ON THE FEED
-//         </h2>
-//         <p className="text-gray-600 mt-2">
-//           Styled by the community
-//         </p>
-//       </div>
+  return (
+    <section className="py-20 bg-[#fafafa] overflow-hidden">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl md:text-5xl font-bold">
+          ON THE FEED
+        </h2>
+        <p className="text-gray-600 mt-2">
+          Styled by the community
+        </p>
+      </div>
 
-//       <div
-//         ref={containerRef}
-//         className="flex gap-10 px-16 overflow-x-auto scrollbar-hide"
-//       >
-//         {feed.map((item, i) => {
-//           const distance = Math.abs(i - active);
+      <div
+        ref={containerRef}
+        className="flex gap-10 px-16 overflow-x-auto scrollbar-hide"
+      >
+        {feed.map((item, i) => {
+          const distance = Math.abs(i - active);
 
-//           // center OR edge emphasis
-//           const isCenter = distance === 0;
-//           const isEdge = distance >= feed.length - 2 || distance === 2;
+          // center OR edge emphasis
+          const isCenter = distance === 0;
+          const isEdge = distance >= feed.length - 2 || distance === 2;
 
-//           const scale = isCenter || isEdge ? 1 : 0.86;
-//           const translateY = isCenter || isEdge ? "0px" : "48px";
+          const scale = isCenter || isEdge ? 1 : 0.86;
+          const translateY = isCenter || isEdge ? "0px" : "48px";
 
-//           return (
-//             <div
-//               key={item.id}
-//               className="flex-shrink-0 transition-all duration-500 ease-out"
-//               style={{
-//                 transform: `
-//           translateY(${translateY})
-//           scale(${scale})
-//         `,
-//                 opacity: distance > 4 ? 0 : 1,
-//               }}
-//             >
-//               <div className="w-[260px] md:w-[320px] aspect-[3/4] rounded-[28px] overflow-hidden shadow-2xl bg-black">
-//                 <video
-//                   src={item.src}
-//                   muted
-//                   loop
-//                   playsInline
-//                   autoPlay={isCenter}
-//                   className="w-full h-full object-cover"
-//                 />
-//               </div>
-//             </div>
-//           );
-//         })}
+          return (
+            <div
+              key={item.id}
+              className="flex-shrink-0 transition-all duration-500 ease-out"
+              style={{
+                transform: `
+          translateY(${translateY})
+          scale(${scale})
+        `,
+                opacity: distance > 4 ? 0 : 1,
+              }}
+            >
+              <div className="w-[260px] md:w-[320px] aspect-[3/4] rounded-[28px] overflow-hidden shadow-2xl bg-black">
+                <video
+                  src={item.src}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay={isCenter}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          );
+        })}
 
-//       </div>
+      </div>
 
-//       <p className="text-center text-sm text-gray-500 mt-8">
-//         Swipe horizontally to explore
-//       </p>
-//     </section>
-//   );
-// }
+      <p className="text-center text-sm text-gray-500 mt-8">
+        Swipe horizontally to explore
+      </p>
+    </section>
+  );
+}
