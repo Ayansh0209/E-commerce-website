@@ -106,6 +106,20 @@ const updateOrderInfo = async (reqData) => {
     const payment = await razorpay.payments.fetch(paymentId);
 
     if (payment.status === "captured") {
+       for (const item of order.orderItems) {
+        const product = item.product;
+
+        if (!product) {
+          throw new Error("Product not found for order item");
+        }
+
+        if (product.quantity < item.quantity) {
+          throw new Error(`${product.title} is out of stock`);
+        }
+
+        product.quantity -= item.quantity;
+        await product.save();
+      }
       //  Update order
       order.paymentDetails.paymentId = paymentId;
       order.paymentDetails.paymentStatus = "COMPLETED";
