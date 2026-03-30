@@ -83,7 +83,7 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link href="/" className="font-extrabold tracking-widest text-xl">
-            <span className="hidden md:block">FALTU FASHION</span>
+            <span className="hidden md:block">E-commerce </span>
             <span className="md:hidden">FF</span>
           </Link>
 

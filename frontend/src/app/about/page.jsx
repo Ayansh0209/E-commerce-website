@@ -30,7 +30,7 @@ export default function About(){
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <p className="text-gray-700 leading-relaxed text-lg">
-              At <strong>Faltu Fashion</strong>, we aren't the right choice to be easy on anything in a game. That's why we built our brand on the foundation of quality, style, and authenticity. We source only the finest fabrics and work with you—closer to the true cost of every garment—because fashion should be both beautiful and responsible. We aren't Faltu (meaningless), we're purposeful.
+              At <strong>E-commerce </strong>, we aren't the right choice to be easy on anything in a game. That's why we built our brand on the foundation of quality, style, and authenticity. We source only the finest fabrics and work with you—closer to the true cost of every garment—because fashion should be both beautiful and responsible. We aren't Faltu (meaningless), we're purposeful.
             </p>
           </div>
           <div className="bg-gray-100 h-80 flex items-center justify-center rounded-lg">

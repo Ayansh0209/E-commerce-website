@@ -129,7 +129,7 @@ export default function AddressPage() {
         key:"rzp_test_Ry8zIcTyXIvFja",
         amount: payment.amount,
         currency: payment.currency,
-        name: "Faltu Fashion",
+        name: "E-commerce ",
         description: "Order Payment",
         order_id: payment.razorpayOrderId,
 

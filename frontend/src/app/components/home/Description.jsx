@@ -52,7 +52,7 @@ export default function Description() {
           <div className="absolute bottom-4 right-4 w-20 h-20 md:w-36 md:h-36 bg-amber-200 rounded-full opacity-25" />
 
           <span className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
-            Why Faltu Fashion
+            Why E-commerce 
           </span>
 
           <h2 className="text-base sm:text-xl md:text-4xl font-bold text-neutral-900 leading-tight mb-2 md:mb-5">

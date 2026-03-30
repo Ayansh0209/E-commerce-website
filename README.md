@@ -1,14 +1,29 @@
-# Faltu Fashion - E-commerce Platform
+# E-commerce  - E-commerce Platform
 
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
-![Razorpay](https://img.shields.io/badge/Razorpay-02042B?style=for-the-badge&logo=razorpay&logoColor=3395FF)
 
-A modern, full-stack e-commerce platform for fashion/clothing built with Next.js, React, Node.js, Express, and MongoDB. Features user authentication, payment processing, order tracking, and admin dashboard.
+
+## 📸 Screenshots
+
+### 🏠 Landing Page
+[![Landing Page](image-1.png)](image-1.png)
+
+### 🛍️ Shop Page
+[![Shop Page](image-2.png)](image-2.png)
+
+### 🛒 Cart Page
+[![Cart Page](image-3.png)](image-3.png)
+
+### ❤️ Wishlist Page
+[![Wishlist Page](image-4.png)](image-4.png)
+
+### 💳 Payment Page
+[![Payment Page](image-5.png)](image-5.png)
+
+### 🛠️ Admin Dashboard
+[![Admin Page](image-6.png)](image-6.png)
+
+### 📦 Product Management
+[![Admin Product Page](image-7.png)](image-7.png)platform for fashion/clothing built with Next.js, React, Node.js, Express, and MongoDB. Features user authentication, payment processing, order tracking, and admin dashboard.
 
 ## 🚀 Features
 

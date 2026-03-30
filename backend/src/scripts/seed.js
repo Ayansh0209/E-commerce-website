@@ -27,7 +27,7 @@ const sampleProducts = [
     discountedPrice: 999,
     discountPercent: 23,
     quantity: 50,
-    brand: "Faltu Fashion",
+    brand: "E-commerce ",
     color: "White",
     sizes: [
       { name: "S", quantity: 10 },
@@ -45,7 +45,7 @@ const sampleProducts = [
     discountedPrice: 2399,
     discountPercent: 20,
     quantity: 30,
-    brand: "Faltu Fashion",
+    brand: "E-commerce ",
     color: "Blue",
     sizes: [
       { name: "28", quantity: 5 },
@@ -63,7 +63,7 @@ const sampleProducts = [
     discountedPrice: 1599,
     discountPercent: 20,
     quantity: 25,
-    brand: "Faltu Fashion",
+    brand: "E-commerce ",
     color: "Red",
     sizes: [
       { name: "S", quantity: 8 },

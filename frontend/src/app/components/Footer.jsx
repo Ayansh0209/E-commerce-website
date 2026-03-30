@@ -138,7 +138,7 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="w-full pl-2 lg:w-1/4">
                         <h2 className="text-xl font-bold mb-4 tracking-widest">
-                            FALTU FASHION
+                            E-commerce 
                         </h2>
 
                         <p className="text-gray-400 text-sm">Lorem Ipsum, 235 Simply,</p>
@@ -200,7 +200,7 @@ const Footer = () => {
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4">
 
                     <div className="flex flex-col md:flex-row gap-4 text-sm">
-                        <p>© 2025 Faltu Fashion, All Rights Reserved.</p>
+                        <p>© 2025 E-commerce , All Rights Reserved.</p>
                         <p className="hover:text-white cursor-pointer">Privacy Policy</p>
                         <p className="hover:text-white cursor-pointer">Terms & Conditions</p>
                     </div>
