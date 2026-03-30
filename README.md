@@ -5,25 +5,27 @@
 ## 📸 Screenshots
 
 ### 🏠 Landing Page
-[![Landing Page](image-1.png)](image-1.png)
+[![Landing Page](frontend/public/assets/image-1.png)](frontend/public/assets/image-1.png)
 
 ### 🛍️ Shop Page
-[![Shop Page](image-2.png)](image-2.png)
+[![Shop Page](frontend/public/assets/image-2.png)](frontend/public/assets/image-2.png)
 
 ### 🛒 Cart Page
-[![Cart Page](image-3.png)](image-3.png)
+[![Cart Page](frontend/public/assets/image-3.png)](frontend/public/assets/image-3.png)
 
 ### ❤️ Wishlist Page
-[![Wishlist Page](image-4.png)](image-4.png)
+[![Wishlist Page](frontend/public/assets/image-4.png)](frontend/public/assets/image-4.png)
 
 ### 💳 Payment Page
-[![Payment Page](image-5.png)](image-5.png)
+[![Payment Page](frontend/public/assets/image-5.png)](frontend/public/assets/image-5.png)
 
 ### 🛠️ Admin Dashboard
-[![Admin Page](image-6.png)](image-6.png)
+[![Admin Page](frontend/public/assets/image-6.png)](frontend/public/assets/image-6.png)
 
 ### 📦 Product Management
-[![Admin Product Page](image-7.png)](image-7.png)platform for fashion/clothing built with Next.js, React, Node.js, Express, and MongoDB. Features user authentication, payment processing, order tracking, and admin dashboard.
+[![Admin Product Page](frontend/public/assets/image-7.png)](frontend/public/assets/image-7.png)
+
+platform for fashion/clothing built with Next.js, React, Node.js, Express, and MongoDB. Features user authentication, payment processing, order tracking, and admin dashboard.
 
 ## 🚀 Features
 
