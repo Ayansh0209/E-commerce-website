@@ -145,7 +145,7 @@ export default function AddressPage() {
       // Open Razorpay Checkout
       const options = {
         //key:process.env.RAZORPAY_KEY_ID,
-        key: "rzp_test_Ry8zIcTyXIvFja",
+        key: "razorpay id ",
         amount: payment.amount,
         currency: payment.currency,
         name: "Faltu Fashion",
